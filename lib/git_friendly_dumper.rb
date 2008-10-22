@@ -63,12 +63,14 @@ protected
     ensure_empty_table_path(table)
     records = self.connection.select_all "SELECT * FROM %s" % table
     begin_progress(table, records.length)
-    dump_table_schema(table)
+    
+    # special handling of schema_migrations table, because schema dumper don't get non integer primary keys
+    table == 'schema_migrations' ? dump_schema_migrations_table_schema : dump_table_schema(table)
     
     highest_id = 0
     records.each do |record|
-      id = record['id'] ? record['id'] : highest_id + 1
-      highest_id = id if highest_id < id
+      id = record['id'] ? record['id'].to_i : highest_id + 1
+      highest_id = id if id > highest_id
       
       File.open(File.join(self.path, table, "%08d.yml" % id), "w") do |record_file|
         record_file.write(record.to_yaml)
@@ -94,6 +96,17 @@ protected
   def dump_table_schema(table)
     File.open(File.join(self.path, table, 'schema.rb'), "w") do |schema_file|
       schema_dumper.send :table, table, schema_file
+    end
+  end
+  
+  def dump_schema_migrations_table_schema
+    File.open(File.join(self.path, 'schema_migrations', 'schema.rb'), "w") do |schema_file|
+      schema_file <<-end_eval
+  create_table(:schema_migrations, :id => false) do |t|
+    t.column :version, :string, :null => false
+  end
+  add_index :schema_migrations, :version, :unique => true, :name => 'unique_schema_migrations'
+      end_eval
     end
   end
   
