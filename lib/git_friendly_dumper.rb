@@ -1,6 +1,16 @@
-# Database independent dump/load
-class GitFriendlyDupmper
+require 'active_record/fixtures'
+
+# Database independent and git friendly replacement for mysqldump for rails projects
+class GitFriendlyDumper
   attr_accessor :path, :connection, :tables, :force
+  
+  def self.dump(options = {})
+    new(options).dump
+  end
+  
+  def self.load(options = {})
+    new(options).load
+  end
   
   def initialize(options = {})
     if options[:progress]
@@ -8,12 +18,12 @@ class GitFriendlyDupmper
         require 'progressbar'
         @progress = {}
       rescue Exception
-        warn "GitFriendlyDupmper requires the progressbar gem for progress option.\n\nsudo gem install progressbar."
+        warn "GitFriendlyDumper requires the progressbar gem for progress option.\n\nsudo gem install progressbar."
       end
     end
     
-    self.path       = File.expand_path(options[:path] || 'db/git_friendly_dumper')
-    self.connection = options[:connection] || ActiveRecord::Base.establish_connection(options[:connection_name] || Rails.env)
+    self.path       = File.expand_path(options[:path] || 'db/git_friendly_dump')
+    self.connection = options[:connection] || ActiveRecord::Base.establish_connection(options[:connection_name] || Rails.env).connection
     self.tables     = options[:tables]
     self.force      = options.key?(:force) ? options[:force] : false
   end
@@ -28,25 +38,10 @@ class GitFriendlyDupmper
   end
   
   def load
-    tables = self.tables || Dir[File.join(path, '*')].select{|f| File.directory?(f)}.map({|f| File.basename(f)})
-    
-    if !self.force && (self.connection.tables & self.tables).any?
-      raise "Tables #{(self.connection.tables & self.tables).to_sentence} already exist"
-    end
-    
-    load_schema if self.structure
-    
+    tables = self.tables || Dir[File.join(path, '*')].select{|f| File.directory?(f)}.map{|f| File.basename(f)}
     self.connection.transaction do
       tables.each do |table|
-        files = Dir[File.join(path, table, '*')]
-        self.connection.execute("DELETE FROM %s" % table)
-        progress = ProgressBar.new(table, files.length)
-        files.each do |file|
-          fixture = Fixture.new(YAML.load(File.read(file)), table.classify)
-          self.connection.insert_fixture fixture, table
-          progress.inc
-        end
-        progress.finish
+        load_table table
       end
     end
   end
@@ -61,7 +56,7 @@ protected
   end
 
   def finish_progress(name)
-    @progress and @progress.finish
+    @progress and @progress[name].finish
   end
 
   def dump_table(table)
@@ -69,8 +64,13 @@ protected
     records = self.connection.select_all "SELECT * FROM %s" % table
     begin_progress(table, records.length)
     dump_table_schema(table)
+    
+    highest_id = 0
     records.each do |record|
-      File.open(File.join(self.path, table, "%08d.yml" % record['id'].to_i), "w") do |record_file|
+      id = record['id'] ? record['id'] : highest_id + 1
+      highest_id = id if highest_id < id
+      
+      File.open(File.join(self.path, table, "%08d.yml" % id), "w") do |record_file|
         record_file.write(record.to_yaml)
       end
       increment_progress(table)
@@ -80,7 +80,7 @@ protected
   
   def load_table(table)
    ensure_no_table(table)
-   files = Dir[File.join(path, table, '*')]
+   files = Dir[File.join(path, table, '*.yml')]
    begin_progress(table, files.length)
    load_table_schema(table)
    files.each do |file|
@@ -92,16 +92,19 @@ protected
   end
   
   def dump_table_schema(table)
-    File.open(File.join(self.path, 'schema.rb'), "w") do |schema_file|
-      dumper = ActiveRecord::SchemaDumper.new(self.connection, schema_file)
-      dumper.send :table, table
+    File.open(File.join(self.path, table, 'schema.rb'), "w") do |schema_file|
+      schema_dumper.send :table, table, schema_file
     end
   end
   
+  def schema_dumper
+    @schema_dumper ||= ActiveRecord::SchemaDumper.send :new, self.connection
+  end
   
   def load_table_schema(table)
+    schema_definition = File.read(File.join(self.path, table, 'schema.rb'))
     ActiveRecord::Schema.define do
-      eval File.read(File.join(self.path, table, 'schema.rb'))
+      eval schema_definition
     end
   end
   

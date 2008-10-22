@@ -1,14 +1,12 @@
 namespace :git_friendly_dumper do
-  desc "dump all tables in the database to db/git_friendly_dumper (override with TABLES, RAILS_ENV, DUMP_PATH)"
+  desc "dump all tables in the database to db/git_friendly_dump (override with TABLES, RAILS_ENV, DUMP_PATH)"
   task :dump => :environment do
-    dumper = GitFriendlyDupmper.new :tables => ENV['TABLES'], :path => ENV['DUMP_PATH'], :force => true, :progress => true
-    dumper.dump
+    GitFriendlyDumper.dump :tables => ENV['TABLES'], :path => ENV['DUMP_PATH'], :progress => true, :force => true
   end
   
-  desc "replace tables in the database with those in db/git_friendly_dumper (override with TABLES, RAILS_ENV, DUMP_PATH)"
+  desc "replace tables in the database with those in db/git_friendly_dump (override with TABLES, RAILS_ENV, DUMP_PATH)"
   task :load => :environment do
-    dumper = GitFriendlyDupmper.new :tables => ENV['TABLES'], :path => ENV['DUMP_PATH'], :force => true, :progress => true
-    dumper.load
+    GitFriendlyDumper.load :tables => ENV['TABLES'], :path => ENV['DUMP_PATH'], :force => true, :progress => true
   end
 end
 
