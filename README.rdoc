@@ -1,0 +1,1 @@
+Use fixtures to create a db independent and git friendly db dump
