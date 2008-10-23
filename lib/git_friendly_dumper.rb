@@ -1,8 +1,11 @@
+require 'fileutils'
 require 'active_record/fixtures'
 begin; require 'progressbar'; rescue MissingSourceFile; end
 
 # Database independent and git friendly replacement for mysqldump for rails projects
 class GitFriendlyDumper
+  include FileUtils
+  
   def self.dump(options = {})
     new(options).dump
   end
@@ -21,12 +24,12 @@ class GitFriendlyDumper
     @tables     = options[:tables]
     @force      = options.key?(:force) ? options[:force] : false
     @schema     = options.key?(:schema) ? options[:schema] : false
-    @progress   = options.key?(:progress) ? options[:progress] : true
+    @progress   = options.key?(:progress) ? options[:progress] : false
   end
   
   def dump
-    tables = @tables || self.connection.tables
-    tables.delete('schema_information') unless @schema
+    tables = @tables || @connection.tables
+    tables.delete('schema_migrations') unless @schema
     @connection.transaction do
       tables.each do |table|
         dump_table table
@@ -36,7 +39,7 @@ class GitFriendlyDumper
   
   def load
     tables = @tables || Dir[File.join(path, '*')].select{|f| File.directory?(f)}.map{|f| File.basename(f)}
-    tables.delete('schema_information') unless @schema
+    tables.delete('schema_migrations') unless @schema
     @connection.transaction do
       tables.each do |table|
         load_table table
