@@ -31,6 +31,10 @@ module GitFriendlyDumperSpec
     Dir["#{@path}/**/*"].map{|f| f.sub("#{@path}/", '')}.to_set
   end
   
+  def random_string
+    (10..rand(100)+20).inject(''){|s,i| s << (rand(26) + 'a'[0]).chr }
+  end
+  
   describe 'GitFriendlyDumper' do
     include GitFriendlyDumperSpec
     
@@ -70,10 +74,10 @@ module GitFriendlyDumperSpec
     
       describe "with some data in firsts and seconds" do
         before do
-          First.create!(:name => '1')
-          First.create!(:name => '2')
-          Second.create!(:name => '3')
-          Second.create!(:name => '4')
+          First.create!(:name => random_string)
+          First.create!(:name => random_string)
+          Second.create!(:name => random_string)
+          Second.create!(:name => random_string)
         end
       
         describe "dump :schema => false" do
@@ -84,6 +88,14 @@ module GitFriendlyDumperSpec
           it "should create only dump/firsts and dump/seconds with record fixtures" do
             do_dump
             dump_files_set.should == ['firsts', 'firsts/00000001.yml', 'firsts/00000002.yml', 'seconds', 'seconds/00000001.yml', 'seconds/00000002.yml'].to_set
+          end
+          
+          it "should contain correct fixture data" do
+            do_dump
+            File.read("#{@path}/firsts/00000001.yml").should == First.find(1).to_yaml
+            File.read("#{@path}/firsts/00000002.yml").should == First.find(2).to_yaml
+            File.read("#{@path}/seconds/00000001.yml").should == First.find(1).to_yaml
+            File.read("#{@path}/seconds/00000002.yml").should == Second.find(2).to_yaml
           end
         end
       end
