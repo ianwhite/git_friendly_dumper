@@ -16,4 +16,21 @@ describe 'GitFriendlyDumper' do
       ProgressBar = @progress_bar_class
     end
   end
+  
+  describe "re: migrations" do
+    before do
+      reset_db
+      remove_dump
+    end
+  
+    describe "when migrated to firsts" do
+      before do
+        migrate_up(1)
+      end
+    
+      it "connection should have tables == ['firsts', 'schema_migrations']" do
+        ActiveRecord::Base.connection.tables.should == ['firsts', 'schema_migrations']
+      end
+    end
+  end
 end
