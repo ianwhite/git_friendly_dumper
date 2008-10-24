@@ -125,20 +125,27 @@ module GitFriendlyDumperSpec
           it_should_behave_like "when dump files exist"
         end
       
-        it "should create only dump/firsts and dump/seconds with record fixtures" do
-          @dumper.dump
-          dump_files_set.should == [
-            'firsts', 'firsts/00000001.yml', 'firsts/00000002.yml',
-            'seconds', 'seconds/00000001.yml', 'seconds/00000002.yml'
-          ].to_set
-        end
+        describe "(after dump)" do
+          before do
+            @dumper.dump
+          end
+      
+          it "should create only dump/firsts and dump/seconds with record fixtures" do
+            dump_files_set.should == [
+              'firsts', 'firsts/00000001.yml', 'firsts/00000002.yml',
+              'seconds', 'seconds/00000001.yml', 'seconds/00000002.yml'
+            ].to_set
+          end
     
-        it "should contain correct fixture data" do
-          @dumper.dump
-          File.read("#{@path}/firsts/00000001.yml").should  == connection.select_one("SELECT * FROM firsts WHERE id=1").to_yaml
-          File.read("#{@path}/firsts/00000002.yml").should  == connection.select_one("SELECT * FROM firsts WHERE id=2").to_yaml
-          File.read("#{@path}/seconds/00000001.yml").should == connection.select_one("SELECT * FROM seconds WHERE id=1").to_yaml
-          File.read("#{@path}/seconds/00000002.yml").should == connection.select_one("SELECT * FROM seconds WHERE id=2").to_yaml
+          it "should create fixtures for firsts" do
+            File.read("#{@path}/firsts/00000001.yml").should  == connection.select_one("SELECT * FROM firsts WHERE id=1").to_yaml
+            File.read("#{@path}/firsts/00000002.yml").should  == connection.select_one("SELECT * FROM firsts WHERE id=2").to_yaml
+          end
+        
+          it "should create fixtures for seconds" do
+            File.read("#{@path}/seconds/00000001.yml").should == connection.select_one("SELECT * FROM seconds WHERE id=1").to_yaml
+            File.read("#{@path}/seconds/00000002.yml").should == connection.select_one("SELECT * FROM seconds WHERE id=2").to_yaml
+          end
         end
       end
       
@@ -154,21 +161,45 @@ module GitFriendlyDumperSpec
           it_should_behave_like "when dump files exist"
         end
       
-        it "should create only dump/firsts, dump/seconds dump/schema_migrations, with record fixtures, and table schemas" do
-          @dumper.dump
-          dump_files_set.should == [
-            'firsts', 'firsts/00000001.yml', 'firsts/00000002.yml', 'firsts/schema.rb',
-            'seconds', 'seconds/00000001.yml', 'seconds/00000002.yml', 'seconds/schema.rb',
-            'schema_migrations', 'schema_migrations/00000001.yml', 'schema_migrations/00000002.yml', 'schema_migrations/schema.rb'
-          ].to_set
-        end
-    
-        it "should contain correct fixture data" do
-          @dumper.dump
-          File.read("#{@path}/firsts/00000001.yml").should  == connection.select_one("SELECT * FROM firsts WHERE id=1").to_yaml
-          File.read("#{@path}/firsts/00000002.yml").should  == connection.select_one("SELECT * FROM firsts WHERE id=2").to_yaml
-          File.read("#{@path}/seconds/00000001.yml").should == connection.select_one("SELECT * FROM seconds WHERE id=1").to_yaml
-          File.read("#{@path}/seconds/00000002.yml").should == connection.select_one("SELECT * FROM seconds WHERE id=2").to_yaml
+        describe "(after dump)" do
+          before do
+            @dumper.dump
+          end
+      
+          it "should create dump/firsts, dump/seconds dump/schema_migrations, with record fixtures, and table schemas" do
+            dump_files_set.should == [
+              'firsts', 'firsts/00000001.yml', 'firsts/00000002.yml', 'firsts/schema.rb',
+              'seconds', 'seconds/00000001.yml', 'seconds/00000002.yml', 'seconds/schema.rb',
+              'schema_migrations', 'schema_migrations/00000001.yml', 'schema_migrations/00000002.yml', 'schema_migrations/schema.rb'
+            ].to_set
+          end
+
+          it "should create fixtures for firsts" do
+            File.read("#{@path}/firsts/00000001.yml").should  == connection.select_one("SELECT * FROM firsts WHERE id=1").to_yaml
+            File.read("#{@path}/firsts/00000002.yml").should  == connection.select_one("SELECT * FROM firsts WHERE id=2").to_yaml
+          end
+        
+          it "should create fixtures for seconds" do
+            File.read("#{@path}/seconds/00000001.yml").should == connection.select_one("SELECT * FROM seconds WHERE id=1").to_yaml
+            File.read("#{@path}/seconds/00000002.yml").should == connection.select_one("SELECT * FROM seconds WHERE id=2").to_yaml
+          end
+        
+          it "should create fixtures for schema_migrations" do
+            File.read("#{@path}/schema_migrations/00000001.yml").should == {"version" => "20070101000000"}.to_yaml
+            File.read("#{@path}/schema_migrations/00000002.yml").should == {"version" => "20070101010000"}.to_yaml
+          end
+        
+          it "should contain create schema for firsts" do
+            File.read("#{@path}/firsts/schema.rb").should =~ /create_table "firsts".*string "name"/m
+          end
+        
+          it "should contain create schema for seconds" do
+            File.read("#{@path}/seconds/schema.rb").should =~ /create_table "seconds".*string "name"/m
+          end
+
+          it "should contain create schema for schema_migrations" do
+            File.read("#{@path}/schema_migrations/schema.rb").should =~ /create_table "schema_migrations".*:id => false.*string "version"/m
+          end
         end
       end
     end
@@ -230,6 +261,8 @@ module GitFriendlyDumperSpec
           
           it_should_behave_like "when db data exists"
         end
+        
+        
       end
     end
   end

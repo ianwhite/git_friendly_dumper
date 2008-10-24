@@ -130,7 +130,7 @@ private
   def schema_migrations_schema
     <<-end_eval
   create_table "schema_migrations", :force => true, :id => false do |t|
-    t.column :version, :string, :null => false
+    t.string "version", :null => false
   end
   add_index :schema_migrations, :version, :unique => true, :name => 'unique_schema_migrations'
     end_eval
