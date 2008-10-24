@@ -11,12 +11,12 @@ namespace :db do
 
   namespace :data do
     desc "dump table data to db/dump (DUMP_PATH)"
-    task :dump do
+    task :dump => :environment do
       GitFriendlyDumper.dump gfd_options.merge(:include_schema => false)
     end
     
     desc "load table data from db/dump (DUMP_PATH)"
-    task :load do
+    task :load => :environment do
       GitFriendlyDumper.load gfd_options.merge(:include_schema => false)
     end
   end
