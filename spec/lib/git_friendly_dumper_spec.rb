@@ -2,6 +2,8 @@ require File.expand_path(File.join(File.dirname(__FILE__), '../spec_helper'))
 require 'git_friendly_dumper'
 
 module GitFriendlyDumperSpec
+  include FileUtils
+  
   # sample app
   class First < ActiveRecord::Base
   end
@@ -22,17 +24,20 @@ module GitFriendlyDumperSpec
     end
   end
   
-  def remove_dump
-    @path = File.join(File.dirname(__FILE__), '../resources/dump')
-    `rm -rf #{@path}`
+  def remove_dump(path = @path)
+    rm_rf @path
   end
   
-  def dump_files_set
-    Dir["#{@path}/**/*"].map{|f| f.sub("#{@path}/", '')}.to_set
+  def dump_files_set(path = @path)
+    Dir["#{path}/**/*"].map{|f| f.sub("#{path}/", '')}.to_set
   end
   
   def random_string
     (10..rand(100)+20).inject(''){|s,i| s << (rand(26) + 'a'[0]).chr }
+  end
+  
+  def connection
+    ActiveRecord::Base.connection
   end
   
   describe 'GitFriendlyDumper' do
@@ -57,14 +62,11 @@ module GitFriendlyDumperSpec
       end
     end
   
-    it "Rails.env.should == 'test'" do
-      Rails.env.should == 'test'
-    end
-  
     describe "after migrating up to 2" do
       before do
         reset_db
         migrate_up(2)
+        @path = File.join(File.dirname(__FILE__), '../resources/dump')
         remove_dump
       end
       
@@ -74,30 +76,70 @@ module GitFriendlyDumperSpec
     
       describe "with some data in firsts and seconds" do
         before do
-          First.create!(:name => random_string)
-          First.create!(:name => random_string)
-          Second.create!(:name => random_string)
-          Second.create!(:name => random_string)
+          @first1   = First.create!(:name => random_string)
+          @first2   = First.create!(:name => random_string)
+          @second1  = Second.create!(:name => random_string)
+          @second2  = Second.create!(:name => random_string)
         end
       
-        describe "dump :schema => false" do
-          def do_dump
-            GitFriendlyDumper.dump :schema => false, :path => @path
+        describe ".new(:schema => false)" do
+          before do
+            @dumper = GitFriendlyDumper.new :schema => false, :path => @path
           end
         
-          it "should create only dump/firsts and dump/seconds with record fixtures" do
-            do_dump
-            dump_files_set.should == ['firsts', 'firsts/00000001.yml', 'firsts/00000002.yml', 'seconds', 'seconds/00000001.yml', 'seconds/00000002.yml'].to_set
+          it "should not require confirmation on dump, as dumps is empty" do
+            @dumper.should_not_receive(:gets)
+            @dumper.dump
           end
           
+          describe "when dump contains fixtures for 'firsts'" do
+            before do
+              mkdir_p "#{@path}/firsts"
+            end
+            
+            it "should require confirmation, and not proceed if not 'yes'" do
+              @dumper.should_receive(:gets).and_return("\n")
+              @dumper.should_not_receive(:dump_table)
+              @dumper.dump
+            end
+            
+            it "should require confirmation, and proceed if 'yes'" do
+              @dumper.should_receive(:gets).and_return("yes\n")
+              @dumper.should_receive(:dump_table).with('firsts')
+              @dumper.should_receive(:dump_table).with('seconds')
+              @dumper.dump
+            end
+          end
+          
+          it "should create only dump/firsts and dump/seconds with record fixtures" do
+            @dumper.dump
+            dump_files_set.should == ['firsts', 'firsts/00000001.yml', 'firsts/00000002.yml', 'seconds', 'seconds/00000001.yml', 'seconds/00000002.yml'].to_set
+          end
+        
           it "should contain correct fixture data" do
-            do_dump
-            File.read("#{@path}/firsts/00000001.yml").should == First.find(1).to_yaml
-            File.read("#{@path}/firsts/00000002.yml").should == First.find(2).to_yaml
-            File.read("#{@path}/seconds/00000001.yml").should == First.find(1).to_yaml
-            File.read("#{@path}/seconds/00000002.yml").should == Second.find(2).to_yaml
+            @dumper.dump
+            File.read("#{@path}/firsts/00000001.yml").should  == connection.select_one("SELECT * FROM firsts WHERE id=1").to_yaml
+            File.read("#{@path}/firsts/00000002.yml").should  == connection.select_one("SELECT * FROM firsts WHERE id=2").to_yaml
+            File.read("#{@path}/seconds/00000001.yml").should == connection.select_one("SELECT * FROM seconds WHERE id=1").to_yaml
+            File.read("#{@path}/seconds/00000002.yml").should == connection.select_one("SELECT * FROM seconds WHERE id=2").to_yaml
           end
         end
+        
+        #describe 
+        #  it "then load :schema => false, should require confirmation from user" do
+        #    dumper = GitFriendlyDumper.new(:schema => false, :path => @path)
+        #    dumper.should_receive(:gets).once
+        #    dumper.load
+        #  end
+        #    
+        #  #it "then, load :schema => false, should return database to original state" do
+        #  #  GitFriendlyDumper.load :schema => false, :path => @path
+        #  #  First.find(1).should  == @first1
+        #  #  First.find(2).should  == @first2
+        #  #  Second.find(1).should == @second1
+        #  #  Second.find(2).should == @second2
+        #  #end
+        #end
       end
     end
   end
