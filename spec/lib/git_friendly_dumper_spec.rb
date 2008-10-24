@@ -45,13 +45,8 @@ module GitFriendlyDumperSpec
 
     before do
       reset_db
-      migrate_up(20070101010000)
       @path = File.join(File.dirname(__FILE__), '../resources/dump')
       remove_dump
-    end
-    
-    it "connection should have tables == ['firsts', 'seconds', 'schema_migrations']" do
-      ActiveRecord::Base.connection.tables.to_set.should == ['firsts', 'seconds', 'schema_migrations'].to_set
     end
     
     describe "when progressbar not installed" do
@@ -73,46 +68,51 @@ module GitFriendlyDumperSpec
       end
     end
     
-    describe "when dump files do not exist", :shared => true do
-      it "should not require confirmation on dump" do
-        @dumper.should_not_receive(:gets)
-        @dumper.dump
-      end
-    end
-    
-    describe "when dump files exist", :shared => true do
-      it "should require confirmation, and not proceed if not 'yes'" do
-        @dumper.should_receive(:gets).and_return("\n")
-        @dumper.should_not_receive(:dump_table)
-        @dumper.dump
-      end
-    
-      it "should require confirmation, and proceed if 'yes'" do
-        @dumper.should_receive(:gets).and_return("yes\n")
-        @dumper.should_receive(:dump_table).any_number_of_times
-        @dumper.dump
-      end
-    
-      describe ", but :force => true" do
-        before do
-          @dumper.force = true
-        end
-      
-        it "should not ask for confirmation" do
-          @dumper.should_not_receive(:gets)
-          @dumper.dump
-        end
-      end
-    end
-    
-    describe "(when db data exists)" do
+    describe "when db data exists" do
       before do
+        migrate_up(20070101010000)
         @first1   = First.create!(:name => random_string)
         @first2   = First.create!(:name => random_string)
         @second1  = Second.create!(:name => random_string)
         @second2  = Second.create!(:name => random_string)
       end
   
+      it "connection should have tables == ['firsts', 'seconds', 'schema_migrations']" do
+        ActiveRecord::Base.connection.tables.to_set.should == ['firsts', 'seconds', 'schema_migrations'].to_set
+      end
+
+      describe "when dump files do not exist", :shared => true do
+        it "should not require confirmation on dump" do
+          @dumper.should_not_receive(:gets)
+          @dumper.dump
+        end
+      end
+
+      describe "when dump files exist", :shared => true do
+        it "should require confirmation, and not proceed if not 'yes'" do
+          @dumper.should_receive(:gets).and_return("\n")
+          @dumper.should_not_receive(:dump_table)
+          @dumper.dump
+        end
+
+        it "should require confirmation, and proceed if 'yes'" do
+          @dumper.should_receive(:gets).and_return("yes\n")
+          @dumper.should_receive(:dump_table).any_number_of_times
+          @dumper.dump
+        end
+
+        describe ", but :force => true" do
+          before do
+            @dumper.force = true
+          end
+
+          it "should not ask for confirmation" do
+            @dumper.should_not_receive(:gets)
+            @dumper.dump
+          end
+        end
+      end
+
       describe "dump :include_schema => false" do
         before do
           @dumper = GitFriendlyDumper.new :include_schema => false, :path => @path
@@ -171,22 +171,66 @@ module GitFriendlyDumperSpec
           File.read("#{@path}/seconds/00000002.yml").should == connection.select_one("SELECT * FROM seconds WHERE id=2").to_yaml
         end
       end
+    end
+  
+    describe "when fixtures exist" do
+      before do
+        migrate_up(20070101010000)
+        @first1   = First.create!(:name => random_string)
+        @first2   = First.create!(:name => random_string)
+        @second1  = Second.create!(:name => random_string)
+        @second2  = Second.create!(:name => random_string)
+        GitFriendlyDumper.dump :include_schema => true, :force => true, :path => @path
+        reset_db
+      end
+      
+      describe "when db data does not exist", :shared => true do
+        it "should not require confirmation on load" do
+          @dumper.should_not_receive(:gets)
+          @dumper.load
+        end
+      end
+
+      describe "when db data exists", :shared => true do
+        it "should require confirmation, and not proceed if not 'yes'" do
+          @dumper.should_receive(:gets).and_return("\n")
+          @dumper.should_not_receive(:load_table)
+          @dumper.load
+        end
+
+        it "should require confirmation, and proceed if 'yes'" do
+          @dumper.should_receive(:gets).and_return("yes\n")
+          @dumper.should_receive(:load_table).any_number_of_times
+          @dumper.load
+        end
+
+        describe ", but :force => true" do
+          before do
+            @dumper.force = true
+          end
+
+          it "should not ask for confirmation" do
+            @dumper.should_not_receive(:gets)
+            @dumper.load
+          end
+        end
+      end
+        
+      describe "load :include_schema => true" do
+        before do
+          @dumper = GitFriendlyDumper.new :include_schema => true, :path => @path
+        end
+
+        it_should_behave_like "when db data does not exist"
+        
+        describe "when db data exists" do
+          before do
+            migrate_up(20070101010000)
+          end
           
-      #describe 
-      #  it "then load :schema => false, should require confirmation from user" do
-      #    dumper = GitFriendlyDumper.new(:schema => false, :path => @path)
-      #    dumper.should_receive(:gets).once
-      #    dumper.load
-      #  end
-      #    
-      #  #it "then, load :schema => false, should return database to original state" do
-      #  #  GitFriendlyDumper.load :schema => false, :path => @path
-      #  #  First.find(1).should  == @first1
-      #  #  First.find(2).should  == @first2
-      #  #  Second.find(1).should == @second1
-      #  #  Second.find(2).should == @second2
-      #  #end
-      #end
+          it_should_behave_like "when db data exists"
+        end
+      end
     end
   end
 end

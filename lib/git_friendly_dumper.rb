@@ -35,7 +35,7 @@ class GitFriendlyDumper
     self.force            = options.key?(:force) ? options[:force] : false
     self.include_schema   = options.key?(:include_schema) ? options[:include_schema] : false
     self.show_progress    = options.key?(:show_progress) ? options[:show_progress] : false
-    self.clobber_fixtures = options.key?(:clobber_fixtures) ? options[:clobber_fixtures] : true
+    self.clobber_fixtures = options.key?(:clobber_fixtures) ? options[:clobber_fixtures] : (options[:tables].blank? ? true : false)
   end
   
   def dump
@@ -52,7 +52,7 @@ class GitFriendlyDumper
   def load
     self.tables ||= fixtures_tables
     tables.delete('schema_migrations') unless include_schema?
-    if force? || (tables && db_tables).empty? || confirm?(:load)
+    if force? || (tables & db_tables).empty? || confirm?(:load)
       connection.transaction do
         tables.each {|table| load_table(table) }
       end
@@ -63,11 +63,14 @@ private
   def confirm?(type)
     dump_path = path.sub("#{RAILS_ROOT}/", '')
     db_name   = connection.current_database
-    tables    = fixtures_tables if clobber_fixtures?
-    puts "\nWARNING: the following #{type == :dump ? 'fixtures' : 'tables'} in #{type == :dump ? dump_path : db_name}:"
-    puts "  " + tables.join("\n  ")
-    puts "will be replaced with #{type == :dump ? 'records' : 'fixtures'}#{' and table schemas' if include_schema?} from #{type == :dump ? db_name : dump_path}."
-    puts "\nDo you wish to proceed? (type 'yes' to proceed)"
+    if clobber_fixtures? && type == :dump
+      puts "\nWARNING: all fixtures in #{dump_path}"
+    else
+      puts "\nWARNING: the following #{type == :dump ? 'fixtures' : 'tables'} in #{type == :dump ? dump_path : db_name}:"
+      puts "           " + tables.join("\n           ")
+    end
+    puts "         will be replaced with #{type == :dump ? 'records' : 'fixtures'}#{' and table schemas' if include_schema?} from #{type == :dump ? db_name : dump_path}."
+    puts "Do you wish to proceed? (type 'yes' to proceed)"
     returning gets.downcase.strip == 'yes' do |proceed|
       puts "#{type.to_s.capitalize} cancelled at user's request." unless proceed
     end
@@ -109,6 +112,7 @@ private
   end
   
   def dump_table_schema(table)
+    show_progress? && progress_bar = ProgressBar.new("#{table} schema", 1)
     File.open(File.join(path, table, 'schema.rb'), "w") do |schema_file|
       if table == 'schema_migrations'
         schema_file.write schema_migrations_schema
@@ -116,6 +120,7 @@ private
         schema_dumper.send :table, table, schema_file
       end
     end
+    show_progress? && progress_bar.finish
   end
 
   def schema_migrations_schema
@@ -133,9 +138,13 @@ private
   
   def load_table_schema(table)
     schema_definition = File.read(File.join(path, table, 'schema.rb'))
-    ActiveRecord::Schema.define do
-      eval schema_definition
+    show_progress? && progress_bar = ProgressBar.new("#{table} schema", 1)
+    ActiveRecord::Migration.suppress_messages do 
+      ActiveRecord::Schema.define do
+        eval schema_definition
+      end
     end
+    show_progress? && progress_bar.finish
   end
 
   def clobber_fixtures(table)
@@ -148,6 +157,6 @@ private
   end
   
   def clobber_records(table)
-    connection.execute_sql "DELETE * FROM #{table}"
+    connection.delete "DELETE FROM #{table}"
   end
 end
