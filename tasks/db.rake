@@ -1,3 +1,11 @@
+# All of these tasks can be modified with these environment vars:
+#
+#  DUMP_PATH=some/path    where the dump is         (default db/dump)
+#  TABLES=comma,sep,list  tables to dump/load       (default all)
+#  FORCE=true|1           answer 'yes'              (default false)
+#  PROGRESS=false|0       show progress             (default true)
+#  CLOBBER=false|0        clobber fixtures on dump  (default true)
+#
 namespace :db do
   desc "dump structure and data to db/dump (DUMP_PATH)"
   task :dump => :environment do
@@ -23,11 +31,12 @@ namespace :db do
   
   def gfd_options
     { 
-      :tables         => ENV['TABLES'] && ENV['TABLES'].split(',').map(&:squish),
-      :path           => ENV['DUMP_PATH'] || 'db/dump',
-      :force          => ['1', 'true'].include?(ENV['FORCE']) ? true : false,
-      :include_schema => ['1', 'true'].include?(ENV['SCHEMA']) ? true : false,
-      :show_progress  => ['0', 'false'].include?(ENV['PROGRESS']) ? false : true
+      :tables           => ENV['TABLES'] && ENV['TABLES'].split(',').map(&:squish),
+      :path             => ENV['DUMP_PATH'] || 'db/dump',
+      :force            => ['1', 'true'].include?(ENV['FORCE']) ? true : false,
+      :include_schema   => ['1', 'true'].include?(ENV['SCHEMA']) ? true : false,
+      :show_progress    => ['0', 'false'].include?(ENV['PROGRESS']) ? false : true,
+      :clobber_fixtures => ['0', 'false'].include?(ENV['CLOBBER']) ? false : true
     }
   end
 end

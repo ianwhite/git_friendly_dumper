@@ -97,7 +97,7 @@ module GitFriendlyDumperSpec
 
         it "should require confirmation, and proceed if 'yes'" do
           $stdin.should_receive(:gets).and_return("yes\n")
-          @dumper.should_receive(:dump_table).any_number_of_times
+          @dumper.should_receive(:dump_table).at_least(1)
           @dumper.dump
         end
 
@@ -231,7 +231,7 @@ module GitFriendlyDumperSpec
 
         it "should require confirmation, and proceed if 'yes'" do
           $stdin.should_receive(:gets).and_return("yes\n")
-          @dumper.should_receive(:load_table).any_number_of_times
+          @dumper.should_receive(:load_table).at_least(1)
           @dumper.load
         end
 
