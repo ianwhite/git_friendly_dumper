@@ -112,7 +112,7 @@ private
   end
   
   def dump_table_schema(table)
-    show_progress? && progress_bar = ProgressBar.new("#{table} schema", 1)
+    show_progress? && $stdout.write("#{table} schema: ")
     File.open(File.join(path, table, 'schema.rb'), "w") do |schema_file|
       if table == 'schema_migrations'
         schema_file.write schema_migrations_schema
@@ -120,7 +120,7 @@ private
         schema_dumper.send :table, table, schema_file
       end
     end
-    show_progress? && progress_bar.finish
+    show_progress? && $stdout.write("done\n")
   end
 
   def schema_migrations_schema
