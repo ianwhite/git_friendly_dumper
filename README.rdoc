@@ -1,4 +1,4 @@
-h1. git friendly dumper
+= git friendly dumper
 
 Use fixtures to create a db independent and git friendly db dump.
 
@@ -8,7 +8,7 @@ very well with large files that are committed all at once).
 If using the schema option (ie. db:dump & db:load), then each table's schema
 definition is included as is the schema_migrations table.
 
-h2. Example usage:
+== Example usage:
 
   # drop-in replacement for mysqldump
   
@@ -16,7 +16,7 @@ h2. Example usage:
     # just like mysqldump -u <user> -p<pass> <app>_development > some/path.sql
 
     rake db:load DUMP_PATH=some/path
-    # just like script/dbconsole < some/path.sql
+    # just like script/dbconsole -p < some/path.sql
     
   # without schema information, just the data
   
@@ -27,7 +27,7 @@ h2. Example usage:
   
     rake db:data:load DUMP_PATH=some/path TABLES=users,things
     
-h2. Notes
+== Notes
 
 It's probably a bad idea to check your dump into the same repo as your app.
 
@@ -37,7 +37,7 @@ containing many binary columns, this resulted in a massive saving in bandwidth.
 Basically, we have the db backup inside the app, but ignored by the main app, the db/dump
 has it's own git repo.
 
-h2. Future
+== Future
 
 Allow specifying records to update, when loading without schema.
 

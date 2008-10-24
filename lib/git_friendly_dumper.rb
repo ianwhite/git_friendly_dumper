@@ -6,111 +6,110 @@ begin; require 'progressbar'; rescue MissingSourceFile; end
 class GitFriendlyDumper
   include FileUtils
   
-  def self.dump(options = {})
-    new(options).dump
-  end
+  attr_accessor :path, :connection, :tables, :force, :include_schema, :show_progress, :clobber_fixtures
+  alias_method :include_schema?, :include_schema
+  alias_method :clobber_fixtures?, :clobber_fixtures
+  alias_method :show_progress?, :show_progress
+  alias_method :force?, :force
   
-  def self.load(options = {})
-    new(options).load
+  class << self
+    def dump(options = {})
+      new(options).dump
+    end
+  
+    def load(options = {})
+      new(options).load
+    end
   end
   
   def initialize(options = {})
-    if options[:progress] && !defined?(ProgressBar)
+    options.assert_valid_keys(:path, :connection, :connection_name, :tables, :force, :include_schema, :show_progress, :clobber_fixtures)
+    
+    if options[:show_progress] && !defined?(ProgressBar)
       raise RuntimeError, "GitFriendlyDumper requires the progressbar gem for progress option.\n  sudo gem install progressbar"
     end
     
-    @path       = File.expand_path(options[:path] || 'db/dump')
-    @connection = options[:connection] || ActiveRecord::Base.establish_connection(options[:connection_name] || Rails.env).connection
-    @tables     = options[:tables]
-    @force      = options.key?(:force) ? options[:force] : false
-    @schema     = options.key?(:schema) ? options[:schema] : false
-    @progress   = options.key?(:progress) ? options[:progress] : false
-    @clobber    = options.key?(:clobber) ? options[:clobber] : true
+    self.path             = File.expand_path(options[:path] || 'db/dump')
+    self.connection       = options[:connection] || ActiveRecord::Base.establish_connection(options[:connection_name] || Rails.env).connection
+    self.tables           = options[:tables]
+    self.force            = options.key?(:force) ? options[:force] : false
+    self.include_schema   = options.key?(:include_schema) ? options[:include_schema] : false
+    self.show_progress    = options.key?(:show_progress) ? options[:show_progress] : false
+    self.clobber_fixtures = options.key?(:clobber_fixtures) ? options[:clobber_fixtures] : true
   end
   
   def dump
-    tables = @tables || @connection.tables
-    tables.delete('schema_migrations') unless @schema
-    if ok_to_dump?(tables)
-      clobber_all_fixtures if @clobber
-      @connection.transaction do
+    self.tables ||= db_tables
+    tables.delete('schema_migrations') unless include_schema?
+    if force? || (tables & fixtures_tables).empty? || confirm?(:dump)
+      clobber_all_fixtures if clobber_fixtures?
+      connection.transaction do
         tables.each {|table| dump_table(table) }
       end
     end
   end
   
   def load
-    tables = @tables || fixtures_tables
-    tables.delete('schema_migrations') unless @schema
-    if ok_to_load?(tables)
-      @connection.transaction do
+    self.tables ||= fixtures_tables
+    tables.delete('schema_migrations') unless include_schema?
+    if force? || (tables && db_tables).empty? || confirm?(:load)
+      connection.transaction do
         tables.each {|table| load_table(table) }
       end
     end
   end
 
-protected
-  def ok_to_dump?(tables)
-    will_be_clobbered = (tables & fixtures_tables)
-    if @force || will_be_clobbered.empty?
-      true
-    else
-      puts "\nWARNING: the following fixtures in #{@path.sub("#{RAILS_ROOT}/",'')}:\n  #{will_be_clobbered.join("\n  ")}\nwill be replaced with data from #{@connection.current_database}.\n\nDo you wish to proceed? (type 'yes' to proceed): "
-      if gets.downcase.strip == 'yes'
-        true
-      else
-        puts "Dump cancelled at user's request."
-      end
-    end
-  end
-  
-  def ok_to_load?(tables)
-    will_be_clobbered = (tables & @connection.tables)
-    if @force || will_be_clobbered.empty?
-      true
-    else
-      puts "\nWARNING: the following tables in #{@connection.current_database}:\n  #{will_be_clobbered.join("\n  ")}\nwill be replaced with fixtures in #{@path.sub("#{RAILS_ROOT}/",'')}.\n\nDo you wish to proceed? (type 'yes' to proceed): "
-      if gets.downcase.strip == 'yes'
-        true
-      else
-        puts "Load cancelled at user's request."
-      end
+private
+  def confirm?(type)
+    dump_path = path.sub("#{RAILS_ROOT}/", '')
+    db_name   = connection.current_database
+    tables    = fixtures_tables if clobber_fixtures?
+    puts "\nWARNING: the following #{type == :dump ? 'fixtures' : 'tables'} in #{type == :dump ? dump_path : db_name}:"
+    puts "  " + tables.join("\n  ")
+    puts "will be replaced with #{type == :dump ? 'records' : 'fixtures'}#{' and table schemas' if include_schema?} from #{type == :dump ? db_name : dump_path}."
+    puts "\nDo you wish to proceed? (type 'yes' to proceed)"
+    returning gets.downcase.strip == 'yes' do |proceed|
+      puts "#{type.to_s.capitalize} cancelled at user's request." unless proceed
     end
   end
 
   def fixtures_tables
-    @fixture_tables ||= Dir[File.join(@path, '*')].select{|f| File.directory?(f)}.map{|f| File.basename(f)}
+    @fixture_tables ||= Dir[File.join(path, '*')].select{|f| File.directory?(f)}.map{|f| File.basename(f)}
+  end
+  
+  def db_tables
+    @db_tables ||= connection.tables
   end
   
   def dump_table(table)
     clobber_fixtures(table)
-    records = @connection.select_all "SELECT * FROM %s" % table
-    @progress && (progress_bar = ProgressBar.new(table, records.length))
+    records = connection.select_all "SELECT * FROM %s" % table
+    show_progress? && (progress_bar = ProgressBar.new(table, records.length))
     records.each_with_index do |record, index|
       id = record['id'] ? record['id'].to_i : index + 1
-      File.open(File.join(@path, table, "%08d.yml" % id), "w") do |record_file|
+      File.open(File.join(path, table, "%08d.yml" % id), "w") do |record_file|
         record_file.write record.to_yaml
       end
-      @progress && progress_bar.inc
+      show_progress? && progress_bar.inc
     end
-    dump_table_schema(table) if @schema
-    @progress && progress_bar.finish
+    dump_table_schema(table) if include_schema?
+    show_progress? && progress_bar.finish
   end
   
   def load_table(table)
-   @schema ? load_table_schema(table) : clobber_records(table)
-   files = Dir[File.join(@path, table, '*.yml')]
-   @progress && (progress_bar = ProgressBar.new(table, records.length))
+   include_schema? ? load_table_schema(table) : clobber_records(table)
+   files = Dir[File.join(path, table, '*.yml')]
+   show_progress? && (progress_bar = ProgressBar.new(table, records.length))
    files.each do |file|
      fixture = Fixture.new(YAML.load(File.read(file)), table.classify)
-     @connection.insert_fixture fixture, table
-     @progress && progress_bar.inc
+     connection.insert_fixture fixture, table
+     show_progress? && progress_bar.inc
    end
-   @progress && progress_bar.finish
+   show_progress? && progress_bar.finish
   end
   
   def dump_table_schema(table)
-    File.open(File.join(@path, table, 'schema.rb'), "w") do |schema_file|
+    File.open(File.join(path, table, 'schema.rb'), "w") do |schema_file|
       if table == 'schema_migrations'
         schema_file.write schema_migrations_schema
       else
@@ -133,23 +132,22 @@ protected
   end
   
   def load_table_schema(table)
-    schema_definition = File.read(File.join(@path, table, 'schema.rb'))
+    schema_definition = File.read(File.join(path, table, 'schema.rb'))
     ActiveRecord::Schema.define do
       eval schema_definition
     end
   end
 
   def clobber_fixtures(table)
-    rm_rf File.join(@path, table)
-    mkdir_p File.join(@path, table)
+    rm_rf File.join(path, table)
+    mkdir_p File.join(path, table)
   end
   
-  # clobber all fixtures paths
   def clobber_all_fixtures
     fixtures_tables.each {|table| clobber_fixtures(table)}
   end
   
   def clobber_records(table)
-    @connection.execute_sql "DELETE * FROM #{table}"
+    connection.execute_sql "DELETE * FROM #{table}"
   end
 end
