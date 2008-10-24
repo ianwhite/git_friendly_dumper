@@ -83,20 +83,20 @@ module GitFriendlyDumperSpec
 
       describe "when dump files do not exist", :shared => true do
         it "should not require confirmation on dump" do
-          @dumper.should_not_receive(:gets)
+          $stdin.should_not_receive(:gets)
           @dumper.dump
         end
       end
 
       describe "when dump files exist", :shared => true do
         it "should require confirmation, and not proceed if not 'yes'" do
-          @dumper.should_receive(:gets).and_return("\n")
+          $stdin.should_receive(:gets).and_return("\n")
           @dumper.should_not_receive(:dump_table)
           @dumper.dump
         end
 
         it "should require confirmation, and proceed if 'yes'" do
-          @dumper.should_receive(:gets).and_return("yes\n")
+          $stdin.should_receive(:gets).and_return("yes\n")
           @dumper.should_receive(:dump_table).any_number_of_times
           @dumper.dump
         end
@@ -107,7 +107,7 @@ module GitFriendlyDumperSpec
           end
 
           it "should not ask for confirmation" do
-            @dumper.should_not_receive(:gets)
+            $stdin.should_not_receive(:gets)
             @dumper.dump
           end
         end
@@ -186,20 +186,20 @@ module GitFriendlyDumperSpec
       
       describe "when db data does not exist", :shared => true do
         it "should not require confirmation on load" do
-          @dumper.should_not_receive(:gets)
+          $stdin.should_not_receive(:gets)
           @dumper.load
         end
       end
 
       describe "when db data exists", :shared => true do
         it "should require confirmation, and not proceed if not 'yes'" do
-          @dumper.should_receive(:gets).and_return("\n")
+          $stdin.should_receive(:gets).and_return("\n")
           @dumper.should_not_receive(:load_table)
           @dumper.load
         end
 
         it "should require confirmation, and proceed if 'yes'" do
-          @dumper.should_receive(:gets).and_return("yes\n")
+          $stdin.should_receive(:gets).and_return("yes\n")
           @dumper.should_receive(:load_table).any_number_of_times
           @dumper.load
         end
@@ -210,7 +210,7 @@ module GitFriendlyDumperSpec
           end
 
           it "should not ask for confirmation" do
-            @dumper.should_not_receive(:gets)
+            $stdin.should_not_receive(:gets)
             @dumper.load
           end
         end

@@ -71,7 +71,7 @@ private
     end
     puts "         will be replaced with #{type == :dump ? 'records' : 'fixtures'}#{' and table schemas' if include_schema?} from #{type == :dump ? db_name : dump_path}."
     puts "Do you wish to proceed? (type 'yes' to proceed)"
-    returning gets.downcase.strip == 'yes' do |proceed|
+    returning $stdin.gets.downcase.strip == 'yes' do |proceed|
       puts "#{type.to_s.capitalize} cancelled at user's request." unless proceed
     end
   end
