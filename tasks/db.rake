@@ -22,10 +22,12 @@ namespace :db do
   end
   
   def gfd_options
-    { :tables         => ENV['TABLES'],
+    { 
+      :tables         => ENV['TABLES'] && ENV['TABLES'].split(',').map(&:squish),
       :path           => ENV['DUMP_PATH'] || 'db/dump',
-      :force          => ENV['FORCE'] || false,
-      :include_schema => ENV['SCHEMA'] || false,
-      :show_progress  => ENV['PROGRESS'] || true }
+      :force          => ['1', 'true'].include?(ENV['FORCE']) ? true : false,
+      :include_schema => ['1', 'true'].include?(ENV['SCHEMA']) ? true : false,
+      :show_progress  => ['0', 'false'].include?(ENV['PROGRESS']) ? false : true
+    }
   end
 end

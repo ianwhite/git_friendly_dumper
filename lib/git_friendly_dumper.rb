@@ -42,6 +42,7 @@ class GitFriendlyDumper
     self.tables ||= db_tables
     tables.delete('schema_migrations') unless include_schema?
     if force? || (tables & fixtures_tables).empty? || confirm?(:dump)
+      puts "Dumping data#{' and structure' if include_schema?} from #{connection.current_database} to #{path.sub("#{RAILS_ROOT}/",'')}\n"
       clobber_all_fixtures if clobber_fixtures?
       connection.transaction do
         tables.each {|table| dump_table(table) }
@@ -53,6 +54,7 @@ class GitFriendlyDumper
     self.tables ||= fixtures_tables
     tables.delete('schema_migrations') unless include_schema?
     if force? || (tables & db_tables).empty? || confirm?(:load)
+      puts "Loading data#{' and structure' if include_schema?} into #{connection.current_database} from #{path.sub("#{RAILS_ROOT}/",'')}\n"
       connection.transaction do
         tables.each {|table| load_table(table) }
       end
@@ -95,8 +97,10 @@ private
       end
       show_progress? && progress_bar.inc
     end
-    dump_table_schema(table) if include_schema?
     show_progress? && progress_bar.finish
+    dump_table_schema(table) if include_schema?
+  rescue Exception => e
+    puts "dumping #{table} failed: #{e.message}"
   end
   
   def load_table(table)
@@ -109,10 +113,11 @@ private
      show_progress? && progress_bar.inc
    end
    show_progress? && progress_bar.finish
+ rescue Exception => e
+   puts "loading #{table} failed: #{e.message}"
   end
   
   def dump_table_schema(table)
-    show_progress? && $stdout.write("#{table} schema: ")
     File.open(File.join(path, table, 'schema.rb'), "w") do |schema_file|
       if table == 'schema_migrations'
         schema_file.write schema_migrations_schema
@@ -120,7 +125,6 @@ private
         schema_dumper.send :table, table, schema_file
       end
     end
-    show_progress? && $stdout.write("done\n")
   end
 
   def schema_migrations_schema
@@ -138,13 +142,11 @@ private
   
   def load_table_schema(table)
     schema_definition = File.read(File.join(path, table, 'schema.rb'))
-    show_progress? && progress_bar = ProgressBar.new("#{table} schema", 1)
     ActiveRecord::Migration.suppress_messages do 
       ActiveRecord::Schema.define do
         eval schema_definition
       end
     end
-    show_progress? && progress_bar.finish
   end
 
   def clobber_fixtures(table)
