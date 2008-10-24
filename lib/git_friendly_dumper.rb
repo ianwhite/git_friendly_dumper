@@ -67,9 +67,9 @@ private
       puts "\nWARNING: all fixtures in #{dump_path}"
     else
       puts "\nWARNING: the following #{type == :dump ? 'fixtures' : 'tables'} in #{type == :dump ? dump_path : db_name}:"
-      puts "           " + tables.join("\n           ")
+      puts "  " + tables.join("\n  ")
     end
-    puts "         will be replaced with #{type == :dump ? 'records' : 'fixtures'}#{' and table schemas' if include_schema?} from #{type == :dump ? db_name : dump_path}."
+    puts "will be replaced with #{type == :dump ? 'records' : 'fixtures'}#{' and table schemas' if include_schema?} from #{type == :dump ? db_name : dump_path}."
     puts "Do you wish to proceed? (type 'yes' to proceed)"
     returning $stdin.gets.downcase.strip == 'yes' do |proceed|
       puts "#{type.to_s.capitalize} cancelled at user's request." unless proceed
