@@ -71,10 +71,10 @@ module GitFriendlyDumperSpec
     describe "when db data exists" do
       before do
         migrate_up(20070101010000)
-        @first1   = First.create!(:name => random_string)
-        @first2   = First.create!(:name => random_string)
-        @second1  = Second.create!(:name => random_string)
-        @second2  = Second.create!(:name => random_string)
+        First.create!(:name => random_string)
+        First.create!(:name => random_string)
+        Second.create!(:name => random_string)
+        Second.create!(:name => random_string)
       end
   
       it "connection should have tables == ['firsts', 'seconds', 'schema_migrations']" do
@@ -207,10 +207,10 @@ module GitFriendlyDumperSpec
     describe "when fixtures exist" do
       before do
         migrate_up(20070101010000)
-        @first1   = First.create!(:name => random_string)
-        @first2   = First.create!(:name => random_string)
-        @second1  = Second.create!(:name => random_string)
-        @second2  = Second.create!(:name => random_string)
+        First.create!(:name => random_string)
+        First.create!(:name => random_string)
+        Second.create!(:name => random_string)
+        Second.create!(:name => random_string)
         GitFriendlyDumper.dump :include_schema => true, :force => true, :path => @path
         reset_db
       end
