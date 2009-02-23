@@ -1,0 +1,397 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html lang='en'>
+  <head>
+    <title>Class: GitFriendlyDumper [git_friendly_dumper API docs]</title>
+    <meta content='text/html; charset=UTF-8' http-equiv='Content-Type'>
+    <link href='.././rdoc-style.css' media='screen' rel='stylesheet' type='text/css'>
+    <script type='text/javascript'>
+      //<![CDATA[
+        function popupCode(url) {
+          window.open(url, "Code", "resizable=yes,scrollbars=yes,toolbar=no,status=no,height=150,width=400")
+        }
+        
+        function toggleCode(id) {
+          var code = document.getElementById(id)
+        
+          code.style.display = code.style.display != 'block' ? 'block' : 'none'
+          return true
+        }
+        
+        // Make codeblocks hidden by default
+        document.writeln('<' + 'style type="text/css">.method .source pre { display: none }<\/style>')
+      //]]>
+    </script>
+  </head>
+  <body class='page'>
+    <div class='class' id='wrapper'>
+      <div class='header'>
+        <h1 class='name'>
+          <span class='type'>Class</span>
+          GitFriendlyDumper
+        </h1>
+        <ol class='paths'>
+          <li>
+            <a href="../files/lib/git_friendly_dumper_rb.html">lib/git_friendly_dumper.rb</a>
+          </li>
+        </ol>
+        <div class='parent'>
+          Parent:
+          <strong>Object</strong>
+        </div>
+      </div>
+      <div id='content'>
+        <div id='text'>
+          <div id='description'>
+            <p>
+            Database independent and git friendly replacement for mysqldump for rails
+            projects
+            </p>
+          </div>
+          <div id='method-list'>
+            <h2>Methods</h2>
+            <h3>public class</h3>
+            <ol>
+              <li><a href="#M000001">dump</a></li>
+              <li><a href="#M000002">load</a></li>
+              <li><a href="#M000003">new</a></li>
+            </ol>
+            <h3>public instance</h3>
+            <ol>
+              <li><a href="#M000004">dump</a></li>
+              <li><a href="#M000005">load</a></li>
+            </ol>
+          </div>
+          <div id='context'>
+            <div id='includes'>
+              <h2>Included modules</h2>
+              <ol>
+                <li>FileUtils</li>
+              </ol>
+            </div>
+          </div>
+          <div id='section'>
+            <div id='aliases-list'>
+              <h2>External Aliases</h2>
+              <div class='name-list'>
+                <table summary='External aliases'>
+                  <tr class='top-aligned-row context-row'>
+                    <td class='context-item-name'>include_schema</td>
+                    <td>-&gt;</td>
+                    <td class='context-item-value'>include_schema?</td>
+                  </tr>
+                  <tr class='top-aligned-row context-row'>
+                    <td class='context-item-name'>show_progress</td>
+                    <td>-&gt;</td>
+                    <td class='context-item-value'>show_progress?</td>
+                  </tr>
+                  <tr class='top-aligned-row context-row'>
+                    <td class='context-item-name'>force</td>
+                    <td>-&gt;</td>
+                    <td class='context-item-value'>force?</td>
+                  </tr>
+                </table>
+              </div>
+            </div>
+            <div id='attribute-list'>
+              <h2 class='section-bar'>Attributes</h2>
+              <div class='name-list'>
+                <table>
+                  <tr class='top-aligned-row context-row'>
+                    <td class='context-item-name'>clobber_fixtures</td>
+                    <td class='context-item-value'>[RW]</td>
+                    <td class='context-item-desc'></td>
+                  </tr>
+                  <tr class='top-aligned-row context-row'>
+                    <td class='context-item-name'>connection</td>
+                    <td class='context-item-value'>[RW]</td>
+                    <td class='context-item-desc'></td>
+                  </tr>
+                  <tr class='top-aligned-row context-row'>
+                    <td class='context-item-name'>force</td>
+                    <td class='context-item-value'>[RW]</td>
+                    <td class='context-item-desc'></td>
+                  </tr>
+                  <tr class='top-aligned-row context-row'>
+                    <td class='context-item-name'>include_schema</td>
+                    <td class='context-item-value'>[RW]</td>
+                    <td class='context-item-desc'></td>
+                  </tr>
+                  <tr class='top-aligned-row context-row'>
+                    <td class='context-item-name'>path</td>
+                    <td class='context-item-value'>[RW]</td>
+                    <td class='context-item-desc'></td>
+                  </tr>
+                  <tr class='top-aligned-row context-row'>
+                    <td class='context-item-name'>show_progress</td>
+                    <td class='context-item-value'>[RW]</td>
+                    <td class='context-item-desc'></td>
+                  </tr>
+                  <tr class='top-aligned-row context-row'>
+                    <td class='context-item-name'>tables</td>
+                    <td class='context-item-value'>[RW]</td>
+                    <td class='context-item-desc'></td>
+                  </tr>
+                </table>
+              </div>
+            </div>
+            <div id='methods'>
+              <h2>Public class methods</h2>
+              <div class='public-class method' id='method-M000001'>
+                <a name='M000001'>      </a>
+                <div class='synopsis'>
+                  <span class='name'>dump</span>
+                  <span class='arguments'>(options = {})</span>
+                </div>
+                <div class='source'>
+                  <a class='source-toggle' href='#' onclick="toggleCode('M000001-source'); return false">
+                    [show source]
+                  </a>
+                  <pre id='M000001-source'><span class="ruby-comment cmt"># File lib/git_friendly_dumper.rb, line 16</span>&#x000A;    <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">dump</span>(<span class="ruby-identifier">options</span> = {})&#x000A;      <span class="ruby-identifier">new</span>(<span class="ruby-identifier">options</span>).<span class="ruby-identifier">dump</span>&#x000A;    <span class="ruby-keyword kw">end</span></pre>
+                </div>
+              </div>
+              <div class='public-class method' id='method-M000002'>
+                <a name='M000002'>      </a>
+                <div class='synopsis'>
+                  <span class='name'>load</span>
+                  <span class='arguments'>(options = {})</span>
+                </div>
+                <div class='source'>
+                  <a class='source-toggle' href='#' onclick="toggleCode('M000002-source'); return false">
+                    [show source]
+                  </a>
+                  <pre id='M000002-source'><span class="ruby-comment cmt"># File lib/git_friendly_dumper.rb, line 20</span>&#x000A;    <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">load</span>(<span class="ruby-identifier">options</span> = {})&#x000A;      <span class="ruby-identifier">new</span>(<span class="ruby-identifier">options</span>).<span class="ruby-identifier">load</span>&#x000A;    <span class="ruby-keyword kw">end</span></pre>
+                </div>
+              </div>
+              <div class='public-class method' id='method-M000003'>
+                <a name='M000003'>      </a>
+                <div class='synopsis'>
+                  <span class='name'>new</span>
+                  <span class='arguments'>(options = {})</span>
+                </div>
+                <div class='source'>
+                  <a class='source-toggle' href='#' onclick="toggleCode('M000003-source'); return false">
+                    [show source]
+                  </a>
+                  <pre id='M000003-source'><span class="ruby-comment cmt"># File lib/git_friendly_dumper.rb, line 25</span>&#x000A;  <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">initialize</span>(<span class="ruby-identifier">options</span> = {})&#x000A;    <span class="ruby-identifier">options</span>.<span class="ruby-identifier">assert_valid_keys</span>(<span class="ruby-identifier">:path</span>, <span class="ruby-identifier">:connection</span>, <span class="ruby-identifier">:connection_name</span>, <span class="ruby-identifier">:tables</span>, <span class="ruby-identifier">:force</span>, <span class="ruby-identifier">:include_schema</span>, <span class="ruby-identifier">:show_progress</span>, <span class="ruby-identifier">:clobber_fixtures</span>)&#x000A;    &#x000A;    <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">options</span>[<span class="ruby-identifier">:show_progress</span>] <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-operator">!</span><span class="ruby-keyword kw">defined?</span>(<span class="ruby-constant">ProgressBar</span>)&#x000A;      <span class="ruby-identifier">raise</span> <span class="ruby-constant">RuntimeError</span>, <span class="ruby-value str">&quot;GitFriendlyDumper requires the progressbar gem for progress option.\n  sudo gem install progressbar&quot;</span>&#x000A;    <span class="ruby-keyword kw">end</span>&#x000A;    &#x000A;    <span class="ruby-keyword kw">self</span>.<span class="ruby-identifier">path</span>             = <span class="ruby-constant">File</span>.<span class="ruby-identifier">expand_path</span>(<span class="ruby-identifier">options</span>[<span class="ruby-identifier">:path</span>] <span class="ruby-operator">||</span> <span class="ruby-value str">'db/dump'</span>)&#x000A;    <span class="ruby-keyword kw">self</span>.<span class="ruby-identifier">connection</span>       = <span class="ruby-identifier">options</span>[<span class="ruby-identifier">:connection</span>] <span class="ruby-operator">||</span> <span class="ruby-constant">ActiveRecord</span><span class="ruby-operator">::</span><span class="ruby-constant">Base</span>.<span class="ruby-identifier">establish_connection</span>(<span class="ruby-identifier">options</span>[<span class="ruby-identifier">:connection_name</span>] <span class="ruby-operator">||</span> <span class="ruby-constant">Rails</span>.<span class="ruby-identifier">env</span>).<span class="ruby-identifier">connection</span>&#x000A;    <span class="ruby-keyword kw">self</span>.<span class="ruby-identifier">tables</span>           = <span class="ruby-identifier">options</span>[<span class="ruby-identifier">:tables</span>]&#x000A;    <span class="ruby-keyword kw">self</span>.<span class="ruby-identifier">force</span>            = <span class="ruby-identifier">options</span>.<span class="ruby-identifier">key?</span>(<span class="ruby-identifier">:force</span>) <span class="ruby-operator">?</span> <span class="ruby-identifier">options</span>[<span class="ruby-identifier">:force</span>] <span class="ruby-operator">:</span> <span class="ruby-keyword kw">false</span>&#x000A;    <span class="ruby-keyword kw">self</span>.<span class="ruby-identifier">include_schema</span>   = <span class="ruby-identifier">options</span>.<span class="ruby-identifier">key?</span>(<span class="ruby-identifier">:include_schema</span>) <span class="ruby-operator">?</span> <span class="ruby-identifier">options</span>[<span class="ruby-identifier">:include_schema</span>] <span class="ruby-operator">:</span> <span class="ruby-keyword kw">false</span>&#x000A;    <span class="ruby-keyword kw">self</span>.<span class="ruby-identifier">show_progress</span>    = <span class="ruby-identifier">options</span>.<span class="ruby-identifier">key?</span>(<span class="ruby-identifier">:show_progress</span>) <span class="ruby-operator">?</span> <span class="ruby-identifier">options</span>[<span class="ruby-identifier">:show_progress</span>] <span class="ruby-operator">:</span> <span class="ruby-keyword kw">false</span>&#x000A;    <span class="ruby-keyword kw">self</span>.<span class="ruby-identifier">clobber_fixtures</span> = <span class="ruby-identifier">options</span>.<span class="ruby-identifier">key?</span>(<span class="ruby-identifier">:clobber_fixtures</span>) <span class="ruby-operator">?</span> <span class="ruby-identifier">options</span>[<span class="ruby-identifier">:clobber_fixtures</span>] <span class="ruby-operator">:</span> (<span class="ruby-identifier">options</span>[<span class="ruby-identifier">:tables</span>].<span class="ruby-identifier">blank?</span> <span class="ruby-value">? </span><span class="ruby-keyword kw">true</span> <span class="ruby-operator">:</span> <span class="ruby-keyword kw">false</span>)&#x000A;  <span class="ruby-keyword kw">end</span></pre>
+                </div>
+              </div>
+              <h2>Public instance methods</h2>
+              <div class='public-instance method' id='method-M000004'>
+                <a name='M000004'>      </a>
+                <div class='synopsis'>
+                  <span class='name'>dump</span>
+                  <span class='arguments'>()</span>
+                </div>
+                <div class='source'>
+                  <a class='source-toggle' href='#' onclick="toggleCode('M000004-source'); return false">
+                    [show source]
+                  </a>
+                  <pre id='M000004-source'><span class="ruby-comment cmt"># File lib/git_friendly_dumper.rb, line 41</span>&#x000A;  <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">dump</span>&#x000A;    <span class="ruby-keyword kw">self</span>.<span class="ruby-identifier">tables</span> <span class="ruby-operator">||=</span> <span class="ruby-identifier">db_tables</span>&#x000A;    <span class="ruby-identifier">tables</span>.<span class="ruby-identifier">delete</span>(<span class="ruby-value str">'schema_migrations'</span>) <span class="ruby-keyword kw">unless</span> <span class="ruby-identifier">include_schema?</span>&#x000A;    <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">force?</span> <span class="ruby-operator">||</span> (<span class="ruby-identifier">tables</span> <span class="ruby-operator">&amp;</span> <span class="ruby-identifier">fixtures_tables</span>).<span class="ruby-identifier">empty?</span> <span class="ruby-operator">||</span> <span class="ruby-identifier">confirm?</span>(<span class="ruby-identifier">:dump</span>)&#x000A;      <span class="ruby-identifier">puts</span> <span class="ruby-node">&quot;Dumping data#{' and structure' if include_schema?} from #{current_database_name} to #{path.sub(&quot;#{RAILS_ROOT}/&quot;,'')}\n&quot;</span>&#x000A;      <span class="ruby-identifier">clobber_all_fixtures</span> <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">clobber_fixtures?</span>&#x000A;      <span class="ruby-identifier">connection</span>.<span class="ruby-identifier">transaction</span> <span class="ruby-keyword kw">do</span>&#x000A;        <span class="ruby-identifier">tables</span>.<span class="ruby-identifier">each</span> {<span class="ruby-operator">|</span><span class="ruby-identifier">table</span><span class="ruby-operator">|</span> <span class="ruby-identifier">dump_table</span>(<span class="ruby-identifier">table</span>) }&#x000A;      <span class="ruby-keyword kw">end</span>&#x000A;    <span class="ruby-keyword kw">end</span>&#x000A;  <span class="ruby-keyword kw">end</span></pre>
+                </div>
+              </div>
+              <div class='public-instance method' id='method-M000005'>
+                <a name='M000005'>      </a>
+                <div class='synopsis'>
+                  <span class='name'>load</span>
+                  <span class='arguments'>()</span>
+                </div>
+                <div class='source'>
+                  <a class='source-toggle' href='#' onclick="toggleCode('M000005-source'); return false">
+                    [show source]
+                  </a>
+                  <pre id='M000005-source'><span class="ruby-comment cmt"># File lib/git_friendly_dumper.rb, line 53</span>&#x000A;  <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">load</span>&#x000A;    <span class="ruby-keyword kw">self</span>.<span class="ruby-identifier">tables</span> <span class="ruby-operator">||=</span> <span class="ruby-identifier">fixtures_tables</span>&#x000A;    <span class="ruby-identifier">tables</span>.<span class="ruby-identifier">delete</span>(<span class="ruby-value str">'schema_migrations'</span>) <span class="ruby-keyword kw">unless</span> <span class="ruby-identifier">include_schema?</span>&#x000A;    <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">force?</span> <span class="ruby-operator">||</span> (<span class="ruby-identifier">tables</span> <span class="ruby-operator">&amp;</span> <span class="ruby-identifier">db_tables</span>).<span class="ruby-identifier">empty?</span> <span class="ruby-operator">||</span> <span class="ruby-identifier">confirm?</span>(<span class="ruby-identifier">:load</span>)&#x000A;      <span class="ruby-identifier">puts</span> <span class="ruby-node">&quot;Loading data#{' and structure' if include_schema?} into #{current_database_name} from #{path.sub(&quot;#{RAILS_ROOT}/&quot;,'')}\n&quot;</span>&#x000A;      <span class="ruby-identifier">connection</span>.<span class="ruby-identifier">transaction</span> <span class="ruby-keyword kw">do</span>&#x000A;        <span class="ruby-identifier">tables</span>.<span class="ruby-identifier">each</span> {<span class="ruby-operator">|</span><span class="ruby-identifier">table</span><span class="ruby-operator">|</span> <span class="ruby-identifier">load_table</span>(<span class="ruby-identifier">table</span>) }&#x000A;      <span class="ruby-keyword kw">end</span>&#x000A;    <span class="ruby-keyword kw">end</span>&#x000A;  <span class="ruby-keyword kw">end</span></pre>
+                </div>
+              </div>
+              <h2>Private instance methods</h2>
+              <div class='private-instance method' id='method-M000018'>
+                <a name='M000018'>      </a>
+                <div class='synopsis'>
+                  <span class='name'>clobber_all_fixtures</span>
+                  <span class='arguments'>()</span>
+                </div>
+                <div class='source'>
+                  <a class='source-toggle' href='#' onclick="toggleCode('M000018-source'); return false">
+                    [show source]
+                  </a>
+                  <pre id='M000018-source'><span class="ruby-comment cmt"># File lib/git_friendly_dumper.rb, line 161</span>&#x000A;  <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">clobber_all_fixtures</span>&#x000A;    <span class="ruby-identifier">fixtures_tables</span>.<span class="ruby-identifier">each</span> {<span class="ruby-operator">|</span><span class="ruby-identifier">table</span><span class="ruby-operator">|</span> <span class="ruby-identifier">clobber_fixtures</span>(<span class="ruby-identifier">table</span>)}&#x000A;  <span class="ruby-keyword kw">end</span></pre>
+                </div>
+              </div>
+              <div class='private-instance method' id='method-M000016'>
+                <a name='M000016'>      </a>
+                <div class='synopsis'>
+                  <span class='name'>clobber_fixtures</span>
+                  <span class='arguments'>(table)</span>
+                </div>
+                <div class='source'>
+                  <a class='source-toggle' href='#' onclick="toggleCode('M000016-source'); return false">
+                    [show source]
+                  </a>
+                  <pre id='M000016-source'><span class="ruby-comment cmt"># File lib/git_friendly_dumper.rb, line 156</span>&#x000A;  <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">clobber_fixtures</span>(<span class="ruby-identifier">table</span>)&#x000A;    <span class="ruby-identifier">rm_rf</span> <span class="ruby-constant">File</span>.<span class="ruby-identifier">join</span>(<span class="ruby-identifier">path</span>, <span class="ruby-identifier">table</span>)&#x000A;    <span class="ruby-identifier">mkdir_p</span> <span class="ruby-constant">File</span>.<span class="ruby-identifier">join</span>(<span class="ruby-identifier">path</span>, <span class="ruby-identifier">table</span>)&#x000A;  <span class="ruby-keyword kw">end</span></pre>
+                </div>
+              </div>
+              <div class='private-instance method' id='method-M000017'>
+                <a name='M000017'>      </a>
+                <div class='synopsis'>
+                  <span class='name'>clobber_fixtures?</span>
+                  <span class='arguments'>(table)</span>
+                </div>
+                <div class='description'>
+                  <p>
+                  Alias for <a href="GitFriendlyDumper.html#M000016">clobber_fixtures</a>
+                  </p>
+                </div>
+              </div>
+              <div class='private-instance method' id='method-M000019'>
+                <a name='M000019'>      </a>
+                <div class='synopsis'>
+                  <span class='name'>clobber_records</span>
+                  <span class='arguments'>(table)</span>
+                </div>
+                <div class='source'>
+                  <a class='source-toggle' href='#' onclick="toggleCode('M000019-source'); return false">
+                    [show source]
+                  </a>
+                  <pre id='M000019-source'><span class="ruby-comment cmt"># File lib/git_friendly_dumper.rb, line 165</span>&#x000A;  <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">clobber_records</span>(<span class="ruby-identifier">table</span>)&#x000A;    <span class="ruby-identifier">connection</span>.<span class="ruby-identifier">delete</span> <span class="ruby-node">&quot;DELETE FROM #{table}&quot;</span>&#x000A;  <span class="ruby-keyword kw">end</span></pre>
+                </div>
+              </div>
+              <div class='private-instance method' id='method-M000007'>
+                <a name='M000007'>      </a>
+                <div class='synopsis'>
+                  <span class='name'>confirm?</span>
+                  <span class='arguments'>(type)</span>
+                </div>
+                <div class='source'>
+                  <a class='source-toggle' href='#' onclick="toggleCode('M000007-source'); return false">
+                    [show source]
+                  </a>
+                  <pre id='M000007-source'><span class="ruby-comment cmt"># File lib/git_friendly_dumper.rb, line 69</span>&#x000A;  <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">confirm?</span>(<span class="ruby-identifier">type</span>)&#x000A;    <span class="ruby-identifier">dump_path</span> = <span class="ruby-identifier">path</span>.<span class="ruby-identifier">sub</span>(<span class="ruby-node">&quot;#{RAILS_ROOT}/&quot;</span>, <span class="ruby-value str">''</span>)&#x000A;    <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">clobber_fixtures?</span> <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-identifier">type</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">:dump</span>&#x000A;      <span class="ruby-identifier">puts</span> <span class="ruby-node">&quot;\nWARNING: all fixtures in #{dump_path}&quot;</span>&#x000A;    <span class="ruby-keyword kw">else</span>&#x000A;      <span class="ruby-identifier">puts</span> <span class="ruby-node">&quot;\nWARNING: the following #{type == :dump ? 'fixtures' : 'tables'} in #{type == :dump ? dump_path : current_database_name}:&quot;</span>&#x000A;      <span class="ruby-identifier">puts</span> <span class="ruby-value str">&quot;  &quot;</span> <span class="ruby-operator">+</span> <span class="ruby-identifier">tables</span>.<span class="ruby-identifier">join</span>(<span class="ruby-value str">&quot;\n  &quot;</span>)&#x000A;    <span class="ruby-keyword kw">end</span>&#x000A;    <span class="ruby-identifier">puts</span> <span class="ruby-node">&quot;will be replaced with #{type == :dump ? 'records' : 'fixtures'}#{' and table schemas' if include_schema?} from #{type == :dump ? current_database_name : dump_path}.&quot;</span>&#x000A;    <span class="ruby-identifier">puts</span> <span class="ruby-value str">&quot;Do you wish to proceed? (type 'yes' to proceed)&quot;</span>&#x000A;    <span class="ruby-identifier">returning</span> <span class="ruby-identifier">$stdin</span>.<span class="ruby-identifier">gets</span>.<span class="ruby-identifier">downcase</span>.<span class="ruby-identifier">strip</span> <span class="ruby-operator">==</span> <span class="ruby-value str">'yes'</span> <span class="ruby-keyword kw">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">proceed</span><span class="ruby-operator">|</span>&#x000A;      <span class="ruby-identifier">puts</span> <span class="ruby-node">&quot;#{type.to_s.capitalize} cancelled at user's request.&quot;</span> <span class="ruby-keyword kw">unless</span> <span class="ruby-identifier">proceed</span>&#x000A;    <span class="ruby-keyword kw">end</span>&#x000A;  <span class="ruby-keyword kw">end</span></pre>
+                </div>
+              </div>
+              <div class='private-instance method' id='method-M000006'>
+                <a name='M000006'>      </a>
+                <div class='synopsis'>
+                  <span class='name'>current_database_name</span>
+                  <span class='arguments'>()</span>
+                </div>
+                <div class='source'>
+                  <a class='source-toggle' href='#' onclick="toggleCode('M000006-source'); return false">
+                    [show source]
+                  </a>
+                  <pre id='M000006-source'><span class="ruby-comment cmt"># File lib/git_friendly_dumper.rb, line 65</span>&#x000A;  <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">current_database_name</span>&#x000A;    <span class="ruby-ivar">@current_database_name</span> <span class="ruby-operator">||=</span> (<span class="ruby-identifier">connection</span>.<span class="ruby-identifier">respond_to?</span>(<span class="ruby-identifier">:current_database</span>) <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-identifier">connection</span>.<span class="ruby-identifier">current_database</span>) <span class="ruby-operator">||</span> <span class="ruby-constant">RAILS_ENV</span>&#x000A;  <span class="ruby-keyword kw">end</span></pre>
+                </div>
+              </div>
+              <div class='private-instance method' id='method-M000009'>
+                <a name='M000009'>      </a>
+                <div class='synopsis'>
+                  <span class='name'>db_tables</span>
+                  <span class='arguments'>()</span>
+                </div>
+                <div class='source'>
+                  <a class='source-toggle' href='#' onclick="toggleCode('M000009-source'); return false">
+                    [show source]
+                  </a>
+                  <pre id='M000009-source'><span class="ruby-comment cmt"># File lib/git_friendly_dumper.rb, line 88</span>&#x000A;  <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">db_tables</span>&#x000A;    <span class="ruby-ivar">@db_tables</span> <span class="ruby-operator">||=</span> <span class="ruby-identifier">connection</span>.<span class="ruby-identifier">tables</span>&#x000A;  <span class="ruby-keyword kw">end</span></pre>
+                </div>
+              </div>
+              <div class='private-instance method' id='method-M000010'>
+                <a name='M000010'>      </a>
+                <div class='synopsis'>
+                  <span class='name'>dump_table</span>
+                  <span class='arguments'>(table)</span>
+                </div>
+                <div class='source'>
+                  <a class='source-toggle' href='#' onclick="toggleCode('M000010-source'); return false">
+                    [show source]
+                  </a>
+                  <pre id='M000010-source'><span class="ruby-comment cmt"># File lib/git_friendly_dumper.rb, line 92</span>&#x000A;  <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">dump_table</span>(<span class="ruby-identifier">table</span>)&#x000A;    <span class="ruby-identifier">clobber_fixtures</span>(<span class="ruby-identifier">table</span>)&#x000A;    <span class="ruby-identifier">records</span> = <span class="ruby-identifier">connection</span>.<span class="ruby-identifier">select_all</span> <span class="ruby-value str">&quot;SELECT * FROM %s&quot;</span> <span class="ruby-operator">%</span> <span class="ruby-identifier">table</span>&#x000A;    <span class="ruby-identifier">show_progress?</span> <span class="ruby-operator">&amp;&amp;</span> (<span class="ruby-identifier">progress_bar</span> = <span class="ruby-constant">ProgressBar</span>.<span class="ruby-identifier">new</span>(<span class="ruby-identifier">table</span>, <span class="ruby-identifier">records</span>.<span class="ruby-identifier">length</span>))&#x000A;    <span class="ruby-identifier">records</span>.<span class="ruby-identifier">each_with_index</span> <span class="ruby-keyword kw">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">record</span>, <span class="ruby-identifier">index</span><span class="ruby-operator">|</span>&#x000A;      <span class="ruby-identifier">id</span> = <span class="ruby-identifier">record</span>[<span class="ruby-value str">'id'</span>] <span class="ruby-operator">?</span> <span class="ruby-identifier">record</span>[<span class="ruby-value str">'id'</span>].<span class="ruby-identifier">to_i</span> <span class="ruby-operator">:</span> <span class="ruby-identifier">index</span> <span class="ruby-operator">+</span> <span class="ruby-value">1</span>&#x000A;      <span class="ruby-constant">File</span>.<span class="ruby-identifier">open</span>(<span class="ruby-constant">File</span>.<span class="ruby-identifier">join</span>(<span class="ruby-identifier">path</span>, <span class="ruby-identifier">table</span>, <span class="ruby-value str">&quot;%08d.yml&quot;</span> <span class="ruby-operator">%</span> <span class="ruby-identifier">id</span>), <span class="ruby-value str">&quot;w&quot;</span>) <span class="ruby-keyword kw">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">record_file</span><span class="ruby-operator">|</span>&#x000A;        <span class="ruby-identifier">record_file</span>.<span class="ruby-identifier">write</span> <span class="ruby-identifier">record</span>.<span class="ruby-identifier">to_yaml</span>&#x000A;      <span class="ruby-keyword kw">end</span>&#x000A;      <span class="ruby-identifier">show_progress?</span> <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-identifier">progress_bar</span>.<span class="ruby-identifier">inc</span>&#x000A;    <span class="ruby-keyword kw">end</span>&#x000A;    <span class="ruby-identifier">show_progress?</span> <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-identifier">progress_bar</span>.<span class="ruby-identifier">finish</span>&#x000A;    <span class="ruby-identifier">dump_table_schema</span>(<span class="ruby-identifier">table</span>) <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">include_schema?</span>&#x000A;  <span class="ruby-keyword kw">rescue</span> <span class="ruby-constant">Exception</span> =<span class="ruby-operator">&gt;</span> <span class="ruby-identifier">e</span>&#x000A;    <span class="ruby-identifier">puts</span> <span class="ruby-node">&quot;dumping #{table} failed: #{e.message}&quot;</span>&#x000A;  <span class="ruby-keyword kw">end</span></pre>
+                </div>
+              </div>
+              <div class='private-instance method' id='method-M000012'>
+                <a name='M000012'>      </a>
+                <div class='synopsis'>
+                  <span class='name'>dump_table_schema</span>
+                  <span class='arguments'>(table)</span>
+                </div>
+                <div class='source'>
+                  <a class='source-toggle' href='#' onclick="toggleCode('M000012-source'); return false">
+                    [show source]
+                  </a>
+                  <pre id='M000012-source'><span class="ruby-comment cmt"># File lib/git_friendly_dumper.rb, line 123</span>&#x000A;  <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">dump_table_schema</span>(<span class="ruby-identifier">table</span>)&#x000A;    <span class="ruby-constant">File</span>.<span class="ruby-identifier">open</span>(<span class="ruby-constant">File</span>.<span class="ruby-identifier">join</span>(<span class="ruby-identifier">path</span>, <span class="ruby-identifier">table</span>, <span class="ruby-value str">'schema.rb'</span>), <span class="ruby-value str">&quot;w&quot;</span>) <span class="ruby-keyword kw">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">schema_file</span><span class="ruby-operator">|</span>&#x000A;      <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">table</span> <span class="ruby-operator">==</span> <span class="ruby-value str">'schema_migrations'</span>&#x000A;        <span class="ruby-identifier">schema_file</span>.<span class="ruby-identifier">write</span> <span class="ruby-identifier">schema_migrations_schema</span>&#x000A;      <span class="ruby-keyword kw">else</span>&#x000A;        <span class="ruby-identifier">schema_dumper</span>.<span class="ruby-identifier">send</span> <span class="ruby-identifier">:table</span>, <span class="ruby-identifier">table</span>, <span class="ruby-identifier">schema_file</span>&#x000A;      <span class="ruby-keyword kw">end</span>&#x000A;    <span class="ruby-keyword kw">end</span>&#x000A;  <span class="ruby-keyword kw">end</span></pre>
+                </div>
+              </div>
+              <div class='private-instance method' id='method-M000008'>
+                <a name='M000008'>      </a>
+                <div class='synopsis'>
+                  <span class='name'>fixtures_tables</span>
+                  <span class='arguments'>()</span>
+                </div>
+                <div class='source'>
+                  <a class='source-toggle' href='#' onclick="toggleCode('M000008-source'); return false">
+                    [show source]
+                  </a>
+                  <pre id='M000008-source'><span class="ruby-comment cmt"># File lib/git_friendly_dumper.rb, line 84</span>&#x000A;  <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">fixtures_tables</span>&#x000A;    <span class="ruby-ivar">@fixture_tables</span> <span class="ruby-operator">||=</span> <span class="ruby-constant">Dir</span>[<span class="ruby-constant">File</span>.<span class="ruby-identifier">join</span>(<span class="ruby-identifier">path</span>, <span class="ruby-value str">'*'</span>)].<span class="ruby-identifier">select</span>{<span class="ruby-operator">|</span><span class="ruby-identifier">f</span><span class="ruby-operator">|</span> <span class="ruby-constant">File</span>.<span class="ruby-identifier">directory?</span>(<span class="ruby-identifier">f</span>)}.<span class="ruby-identifier">map</span>{<span class="ruby-operator">|</span><span class="ruby-identifier">f</span><span class="ruby-operator">|</span> <span class="ruby-constant">File</span>.<span class="ruby-identifier">basename</span>(<span class="ruby-identifier">f</span>)}&#x000A;  <span class="ruby-keyword kw">end</span></pre>
+                </div>
+              </div>
+              <div class='private-instance method' id='method-M000011'>
+                <a name='M000011'>      </a>
+                <div class='synopsis'>
+                  <span class='name'>load_table</span>
+                  <span class='arguments'>(table)</span>
+                </div>
+                <div class='source'>
+                  <a class='source-toggle' href='#' onclick="toggleCode('M000011-source'); return false">
+                    [show source]
+                  </a>
+                  <pre id='M000011-source'><span class="ruby-comment cmt"># File lib/git_friendly_dumper.rb, line 109</span>&#x000A;  <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">load_table</span>(<span class="ruby-identifier">table</span>)&#x000A;   <span class="ruby-identifier">include_schema?</span> <span class="ruby-value">? </span><span class="ruby-identifier">load_table_schema</span>(<span class="ruby-identifier">table</span>) <span class="ruby-operator">:</span> <span class="ruby-identifier">clobber_records</span>(<span class="ruby-identifier">table</span>)&#x000A;   <span class="ruby-identifier">files</span> = <span class="ruby-constant">Dir</span>[<span class="ruby-constant">File</span>.<span class="ruby-identifier">join</span>(<span class="ruby-identifier">path</span>, <span class="ruby-identifier">table</span>, <span class="ruby-value str">'*.yml'</span>)]&#x000A;   <span class="ruby-identifier">show_progress?</span> <span class="ruby-operator">&amp;&amp;</span> (<span class="ruby-identifier">progress_bar</span> = <span class="ruby-constant">ProgressBar</span>.<span class="ruby-identifier">new</span>(<span class="ruby-identifier">table</span>, <span class="ruby-identifier">files</span>.<span class="ruby-identifier">length</span>))&#x000A;   <span class="ruby-identifier">files</span>.<span class="ruby-identifier">each</span> <span class="ruby-keyword kw">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">file</span><span class="ruby-operator">|</span>&#x000A;     <span class="ruby-identifier">fixture</span> = <span class="ruby-constant">Fixture</span>.<span class="ruby-identifier">new</span>(<span class="ruby-constant">YAML</span>.<span class="ruby-identifier">load</span>(<span class="ruby-constant">File</span>.<span class="ruby-identifier">read</span>(<span class="ruby-identifier">file</span>)), <span class="ruby-identifier">table</span>.<span class="ruby-identifier">classify</span>)&#x000A;     <span class="ruby-identifier">connection</span>.<span class="ruby-identifier">insert_fixture</span> <span class="ruby-identifier">fixture</span>, <span class="ruby-identifier">table</span>&#x000A;     <span class="ruby-identifier">show_progress?</span> <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-identifier">progress_bar</span>.<span class="ruby-identifier">inc</span>&#x000A;   <span class="ruby-keyword kw">end</span>&#x000A;   <span class="ruby-identifier">show_progress?</span> <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-identifier">progress_bar</span>.<span class="ruby-identifier">finish</span>&#x000A; <span class="ruby-keyword kw">rescue</span> <span class="ruby-constant">Exception</span> =<span class="ruby-operator">&gt;</span> <span class="ruby-identifier">e</span>&#x000A;   <span class="ruby-identifier">puts</span> <span class="ruby-node">&quot;loading #{table} failed: #{e.message}&quot;</span>&#x000A;  <span class="ruby-keyword kw">end</span></pre>
+                </div>
+              </div>
+              <div class='private-instance method' id='method-M000015'>
+                <a name='M000015'>      </a>
+                <div class='synopsis'>
+                  <span class='name'>load_table_schema</span>
+                  <span class='arguments'>(table)</span>
+                </div>
+                <div class='source'>
+                  <a class='source-toggle' href='#' onclick="toggleCode('M000015-source'); return false">
+                    [show source]
+                  </a>
+                  <pre id='M000015-source'><span class="ruby-comment cmt"># File lib/git_friendly_dumper.rb, line 147</span>&#x000A;  <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">load_table_schema</span>(<span class="ruby-identifier">table</span>)&#x000A;    <span class="ruby-identifier">schema_definition</span> = <span class="ruby-constant">File</span>.<span class="ruby-identifier">read</span>(<span class="ruby-constant">File</span>.<span class="ruby-identifier">join</span>(<span class="ruby-identifier">path</span>, <span class="ruby-identifier">table</span>, <span class="ruby-value str">'schema.rb'</span>))&#x000A;    <span class="ruby-constant">ActiveRecord</span><span class="ruby-operator">::</span><span class="ruby-constant">Migration</span>.<span class="ruby-identifier">suppress_messages</span> <span class="ruby-keyword kw">do</span> &#x000A;      <span class="ruby-constant">ActiveRecord</span><span class="ruby-operator">::</span><span class="ruby-constant">Schema</span>.<span class="ruby-identifier">define</span> <span class="ruby-keyword kw">do</span>&#x000A;        <span class="ruby-identifier">eval</span> <span class="ruby-identifier">schema_definition</span>&#x000A;      <span class="ruby-keyword kw">end</span>&#x000A;    <span class="ruby-keyword kw">end</span>&#x000A;  <span class="ruby-keyword kw">end</span></pre>
+                </div>
+              </div>
+              <div class='private-instance method' id='method-M000014'>
+                <a name='M000014'>      </a>
+                <div class='synopsis'>
+                  <span class='name'>schema_dumper</span>
+                  <span class='arguments'>()</span>
+                </div>
+                <div class='source'>
+                  <a class='source-toggle' href='#' onclick="toggleCode('M000014-source'); return false">
+                    [show source]
+                  </a>
+                  <pre id='M000014-source'><span class="ruby-comment cmt"># File lib/git_friendly_dumper.rb, line 143</span>&#x000A;  <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">schema_dumper</span>&#x000A;    <span class="ruby-ivar">@schema_dumper</span> <span class="ruby-operator">||=</span> <span class="ruby-constant">ActiveRecord</span><span class="ruby-operator">::</span><span class="ruby-constant">SchemaDumper</span>.<span class="ruby-identifier">send</span> <span class="ruby-identifier">:new</span>, <span class="ruby-ivar">@connection</span>&#x000A;  <span class="ruby-keyword kw">end</span></pre>
+                </div>
+              </div>
+              <div class='private-instance method' id='method-M000013'>
+                <a name='M000013'>      </a>
+                <div class='synopsis'>
+                  <span class='name'>schema_migrations_schema</span>
+                  <span class='arguments'>()</span>
+                </div>
+                <div class='source'>
+                  <a class='source-toggle' href='#' onclick="toggleCode('M000013-source'); return false">
+                    [show source]
+                  </a>
+                  <pre id='M000013-source'><span class="ruby-comment cmt"># File lib/git_friendly_dumper.rb, line 133</span>&#x000A;  <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">schema_migrations_schema</span>&#x000A;    <span class="ruby-value str">&quot;create_table \&quot;schema_migrations\&quot;, :force =&gt; true, :id =&gt; false do |t|\nt.string \&quot;version\&quot;, :null =&gt; false\nend\nadd_index :schema_migrations, :version, :unique =&gt; true, :name =&gt; 'unique_schema_migrations'\n&quot;</span>&#x000A;  <span class="ruby-keyword kw">end</span></pre>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div id='footer-push'></div>
+    </div>
+    <div id='footer'>
+      <a href="http://github.com/mislav/hanna/tree/master"><strong>Hanna</strong> RDoc template</a>
+    </div>
+  </body>
+</html>

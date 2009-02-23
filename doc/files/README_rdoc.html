@@ -1,0 +1,85 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html lang='en'>
+  <head>
+    <title>File: README.rdoc [git_friendly_dumper API docs]</title>
+    <meta content='text/html; charset=UTF-8' http-equiv='Content-Type'>
+    <link href='.././rdoc-style.css' media='screen' rel='stylesheet' type='text/css'>
+    <script type='text/javascript'>
+      //<![CDATA[
+        function popupCode(url) {
+          window.open(url, "Code", "resizable=yes,scrollbars=yes,toolbar=no,status=no,height=150,width=400")
+        }
+        
+        function toggleCode(id) {
+          var code = document.getElementById(id)
+        
+          code.style.display = code.style.display != 'block' ? 'block' : 'none'
+          return true
+        }
+        
+        // Make codeblocks hidden by default
+        document.writeln('<' + 'style type="text/css">.method .source pre { display: none }<\/style>')
+      //]]>
+    </script>
+  </head>
+  <body class='page'>
+    <div class='file' id='wrapper'>
+      <div class='header'>
+        <div class='name'>README.rdoc</div>
+        <div class='paths'>
+          README.rdoc
+        </div>
+        <div class='last-update'>
+          Last Update:
+          <span class='datetime'>Mon Feb 23 19:23:42 +0000 2009</span>
+        </div>
+      </div>
+      <div id='content'>
+        <div id='text'>
+          <div id='description'>
+            <h1>git friendly dumper</h1>
+            <p>
+            Use fixtures to create a db independent and git friendly db dump.
+            </p>
+            <p>
+            It&#8217;s git friendly because each record is in its own file (git
+            doesn&#8217;t do very well with large files that are committed all at
+            once).
+            </p>
+            <p>
+            If using the schema option (ie. db:dump &amp; db:load), then each
+            table&#8217;s schema definition is included as is the schema_migrations
+            table.
+            </p>
+            <h2>Example usage:</h2>
+            <pre># drop-in replacement for mysqldump&#x000A;&#x000A;  rake db:dump DUMP_PATH=some/path&#x000A;  # just like mysqldump -u &lt;user&gt; -p&lt;pass&gt; &lt;app&gt;_development &gt; some/path.sql&#x000A;&#x000A;  rake db:load DUMP_PATH=some/path&#x000A;  # just like script/dbconsole -p &lt; some/path.sql&#x000A;&#x000A;# without schema information, just the data&#x000A;&#x000A;  rake db:data:dump DUMP_PATH=some/path # dump the data without touching the structure&#x000A;  rale db:data:load DUMP_PATH=some/path # load the data without touching the structure&#x000A;&#x000A;# just load particular table data&#x000A;&#x000A;  rake db:data:load DUMP_PATH=some/path TABLES=users,things</pre>
+            <h2>Notes</h2>
+            <p>
+            It&#8217;s probably a bad idea to check your dump into the same repo as
+            your app.
+            </p>
+            <p>
+            I created this so that we could have incremental scheduled backups of the
+            db. With a database of 120M containing many binary columns, this resulted
+            in a massive saving in bandwidth.
+            </p>
+            <p>
+            Basically, we have the db backup inside the app, but ignored by the main
+            app, the db/dump has it&#8217;s own git repo.
+            </p>
+            <h2>CI</h2>
+            <p>
+            It&#8217;s tested against master (2.3) and 2-2-stable branches
+            </p>
+          </div>
+          <div id='section'>
+          </div>
+        </div>
+      </div>
+      <div id='footer-push'></div>
+    </div>
+    <div id='footer'>
+      <a href="http://github.com/mislav/hanna/tree/master"><strong>Hanna</strong> RDoc template</a>
+    </div>
+  </body>
+</html>
