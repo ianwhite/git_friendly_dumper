@@ -64,7 +64,7 @@ class GitFriendlyDumper
 private
   def confirm?(type)
     dump_path = path.sub("#{RAILS_ROOT}/", '')
-    db_name   = connection.current_database
+    db_name   = (connection.respond_to?(:current_database) && connection.current_database) || RAILS_ENV
     if clobber_fixtures? && type == :dump
       puts "\nWARNING: all fixtures in #{dump_path}"
     else
