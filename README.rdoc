@@ -36,10 +36,4 @@ containing many binary columns, this resulted in a massive saving in bandwidth.
 
 Basically, we have the db backup inside the app, but ignored by the main app, the db/dump
 has it's own git repo.
-
-== Future
-
-Allow specifying records to update, when loading without schema.
-
-Ability to parse a git diff into the above.
     

@@ -1,0 +1,3 @@
+* Allow specifying records to update, when loading without schema.
+
+* Ability to parse a git diff into the above.
