@@ -22,7 +22,7 @@ garlic do
     
       run do
         cd "vendor/plugins/git_friendly_dumper" do
-          sh "rake rcov:verify"
+          sh "rake"
         end
       end
     end
