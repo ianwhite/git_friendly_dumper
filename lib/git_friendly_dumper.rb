@@ -42,7 +42,7 @@ class GitFriendlyDumper
     self.tables ||= db_tables
     tables.delete('schema_migrations') unless include_schema?
     if force? || (tables & fixtures_tables).empty? || confirm?(:dump)
-      puts "Dumping data#{' and structure' if include_schema?} from #{connection.current_database} to #{path.sub("#{RAILS_ROOT}/",'')}\n"
+      puts "Dumping data#{' and structure' if include_schema?} from #{current_database_name} to #{path.sub("#{RAILS_ROOT}/",'')}\n"
       clobber_all_fixtures if clobber_fixtures?
       connection.transaction do
         tables.each {|table| dump_table(table) }
@@ -54,7 +54,7 @@ class GitFriendlyDumper
     self.tables ||= fixtures_tables
     tables.delete('schema_migrations') unless include_schema?
     if force? || (tables & db_tables).empty? || confirm?(:load)
-      puts "Loading data#{' and structure' if include_schema?} into #{connection.current_database} from #{path.sub("#{RAILS_ROOT}/",'')}\n"
+      puts "Loading data#{' and structure' if include_schema?} into #{current_database_name} from #{path.sub("#{RAILS_ROOT}/",'')}\n"
       connection.transaction do
         tables.each {|table| load_table(table) }
       end
@@ -62,16 +62,19 @@ class GitFriendlyDumper
   end
 
 private
+  def current_database_name
+    @current_database_name ||= (connection.respond_to?(:current_database) && connection.current_database) || RAILS_ENV
+  end
+  
   def confirm?(type)
     dump_path = path.sub("#{RAILS_ROOT}/", '')
-    db_name   = (connection.respond_to?(:current_database) && connection.current_database) || RAILS_ENV
     if clobber_fixtures? && type == :dump
       puts "\nWARNING: all fixtures in #{dump_path}"
     else
-      puts "\nWARNING: the following #{type == :dump ? 'fixtures' : 'tables'} in #{type == :dump ? dump_path : db_name}:"
+      puts "\nWARNING: the following #{type == :dump ? 'fixtures' : 'tables'} in #{type == :dump ? dump_path : current_database_name}:"
       puts "  " + tables.join("\n  ")
     end
-    puts "will be replaced with #{type == :dump ? 'records' : 'fixtures'}#{' and table schemas' if include_schema?} from #{type == :dump ? db_name : dump_path}."
+    puts "will be replaced with #{type == :dump ? 'records' : 'fixtures'}#{' and table schemas' if include_schema?} from #{type == :dump ? current_database_name : dump_path}."
     puts "Do you wish to proceed? (type 'yes' to proceed)"
     returning $stdin.gets.downcase.strip == 'yes' do |proceed|
       puts "#{type.to_s.capitalize} cancelled at user's request." unless proceed
