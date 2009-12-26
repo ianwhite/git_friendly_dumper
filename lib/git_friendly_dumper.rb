@@ -95,7 +95,9 @@ private
     show_progress? && (progress_bar = ProgressBar.new(table, records.length))
     records.each_with_index do |record, index|
       id = record['id'] ? record['id'].to_i : index + 1
-      File.open(File.join(path, table, "%08d.yml" % id), "w") do |record_file|
+      fixture_file = File.join(path, table, *id_path(id)) + ".yml"
+      mkdir_p(File.dirname(fixture_file))
+      File.open(fixture_file, "w") do |record_file|
         record_file.write record.to_yaml
       end
       show_progress? && progress_bar.inc
@@ -166,5 +168,15 @@ private
   
   def clobber_records(table)
     connection.delete "DELETE FROM #{table}"
+  end
+  
+  # Partitions the given id into an array of path components.
+  #
+  # For example, given an id of 1
+  # <tt>["0000", "0001"]</tt>
+  #
+  # Currently only integer ids are supported
+  def id_path(id)
+    ("%08d" % id).scan(/..../)
   end
 end

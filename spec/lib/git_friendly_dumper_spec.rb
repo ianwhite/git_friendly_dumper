@@ -132,19 +132,19 @@ module GitFriendlyDumperSpec
       
           it "should create only dump/firsts and dump/seconds with record fixtures" do
             dump_files_set.should == [
-              'firsts', 'firsts/00000001.yml', 'firsts/00000002.yml',
-              'seconds', 'seconds/00000001.yml', 'seconds/00000002.yml'
+              'firsts', 'firsts/0000', 'firsts/0000/0001.yml', 'firsts/0000/0002.yml',
+              'seconds', 'seconds/0000', 'seconds/0000/0001.yml', 'seconds/0000/0002.yml'
             ].to_set
           end
     
           it "should create fixtures for firsts" do
-            File.read("#{@path}/firsts/00000001.yml").should  == connection.select_one("SELECT * FROM firsts WHERE id=1").to_yaml
-            File.read("#{@path}/firsts/00000002.yml").should  == connection.select_one("SELECT * FROM firsts WHERE id=2").to_yaml
+            File.read("#{@path}/firsts/0000/0001.yml").should  == connection.select_one("SELECT * FROM firsts WHERE id=1").to_yaml
+            File.read("#{@path}/firsts/0000/0002.yml").should  == connection.select_one("SELECT * FROM firsts WHERE id=2").to_yaml
           end
         
           it "should create fixtures for seconds" do
-            File.read("#{@path}/seconds/00000001.yml").should == connection.select_one("SELECT * FROM seconds WHERE id=1").to_yaml
-            File.read("#{@path}/seconds/00000002.yml").should == connection.select_one("SELECT * FROM seconds WHERE id=2").to_yaml
+            File.read("#{@path}/seconds/0000/0001.yml").should == connection.select_one("SELECT * FROM seconds WHERE id=1").to_yaml
+            File.read("#{@path}/seconds/0000/0002.yml").should == connection.select_one("SELECT * FROM seconds WHERE id=2").to_yaml
           end
         end
       end
@@ -168,25 +168,25 @@ module GitFriendlyDumperSpec
       
           it "should create dump/firsts, dump/seconds dump/schema_migrations, with record fixtures, and table schemas" do
             dump_files_set.should == [
-              'firsts', 'firsts/00000001.yml', 'firsts/00000002.yml', 'firsts/schema.rb',
-              'seconds', 'seconds/00000001.yml', 'seconds/00000002.yml', 'seconds/schema.rb',
-              'schema_migrations', 'schema_migrations/00000001.yml', 'schema_migrations/00000002.yml', 'schema_migrations/schema.rb'
+              'firsts', 'firsts/0000', 'firsts/0000/0001.yml', 'firsts/0000/0002.yml', 'firsts/schema.rb',
+              'seconds', 'seconds/0000', 'seconds/0000/0001.yml', 'seconds/0000/0002.yml', 'seconds/schema.rb',
+              'schema_migrations', 'schema_migrations/0000', 'schema_migrations/0000/0001.yml', 'schema_migrations/0000/0002.yml', 'schema_migrations/schema.rb'
             ].to_set
           end
 
           it "should create fixtures for firsts" do
-            File.read("#{@path}/firsts/00000001.yml").should  == connection.select_one("SELECT * FROM firsts WHERE id=1").to_yaml
-            File.read("#{@path}/firsts/00000002.yml").should  == connection.select_one("SELECT * FROM firsts WHERE id=2").to_yaml
+            File.read("#{@path}/firsts/0000/0001.yml").should  == connection.select_one("SELECT * FROM firsts WHERE id=1").to_yaml
+            File.read("#{@path}/firsts/0000/0002.yml").should  == connection.select_one("SELECT * FROM firsts WHERE id=2").to_yaml
           end
         
           it "should create fixtures for seconds" do
-            File.read("#{@path}/seconds/00000001.yml").should == connection.select_one("SELECT * FROM seconds WHERE id=1").to_yaml
-            File.read("#{@path}/seconds/00000002.yml").should == connection.select_one("SELECT * FROM seconds WHERE id=2").to_yaml
+            File.read("#{@path}/seconds/0000/0001.yml").should == connection.select_one("SELECT * FROM seconds WHERE id=1").to_yaml
+            File.read("#{@path}/seconds/0000/0002.yml").should == connection.select_one("SELECT * FROM seconds WHERE id=2").to_yaml
           end
         
           it "should create fixtures for schema_migrations" do
-            File.read("#{@path}/schema_migrations/00000001.yml").should == {"version" => "20070101000000"}.to_yaml
-            File.read("#{@path}/schema_migrations/00000002.yml").should == {"version" => "20070101010000"}.to_yaml
+            File.read("#{@path}/schema_migrations/0000/0001.yml").should == {"version" => "20070101000000"}.to_yaml
+            File.read("#{@path}/schema_migrations/0000/0002.yml").should == {"version" => "20070101010000"}.to_yaml
           end
         
           it "should contain create schema for firsts" do
