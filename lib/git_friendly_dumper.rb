@@ -107,17 +107,20 @@ private
   end
   
   def load_table(table)
-   include_schema? ? load_table_schema(table) : clobber_records(table)
-   files = Dir[File.join(path, table, '*.yml')]
-   show_progress? && (progress_bar = ProgressBar.new(table, files.length))
-   files.each do |file|
-     fixture = Fixture.new(YAML.load(File.read(file)), table.classify)
-     connection.insert_fixture fixture, table
-     show_progress? && progress_bar.inc
-   end
-   show_progress? && progress_bar.finish
- rescue Exception => e
-   puts "loading #{table} failed: #{e.message}"
+    # create a placeholder AR class for the table without loading anything from the app.
+    klass = eval "class #{table.classify} < ActiveRecord::Base; end"
+    include_schema? ? load_table_schema(table) : clobber_records(table)
+    files = Dir[File.join(path, table, '*.yml')]
+    show_progress? && (progress_bar = ProgressBar.new(table, files.length))
+    files.each do |file|
+      fixture = Fixture.new(YAML.load(File.read(file)), klass)
+      connection.insert_fixture fixture, table
+      show_progress? && progress_bar.inc
+    end
+    show_progress? && progress_bar.finish
+  rescue Exception => e
+    puts "loading #{table} failed: #{e.message}"
+    puts e.backtrace
   end
   
   def dump_table_schema(table)
