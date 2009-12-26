@@ -8,7 +8,7 @@ garlic do
   repo "rspec-rails", :url => "git://github.com/dchelimsky/rspec-rails"
   
   # target railses
-  ['master', '2-2-stable'].each do |rails|
+  ['2-3-stable', '2-2-stable'].each do |rails|
     
     # declare how to prepare, and run each CI target
     target rails, :tree_ish => "origin/#{rails}" do
