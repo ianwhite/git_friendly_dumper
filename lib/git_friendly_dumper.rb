@@ -96,7 +96,7 @@ private
     records.each_with_index do |record, index|
       id = record['id'] ? record['id'].to_i : index + 1
       fixture_file = File.join(path, table, *id_path(id)) + ".yml"
-      mkdir_p(File.dirname(fixture_file))
+      `mkdir -p #{File.dirname(fixture_file)}`
       File.open(fixture_file, "w") do |record_file|
         record_file.write record.to_yaml
       end
@@ -158,8 +158,8 @@ private
   end
 
   def clobber_fixtures(table)
-    rm_rf File.join(path, table)
-    mkdir_p File.join(path, table)
+    `rm -rf #{File.join(path, table)}`
+    `mkdir -p #{File.join(path, table)}`
   end
   
   def clobber_all_fixtures
