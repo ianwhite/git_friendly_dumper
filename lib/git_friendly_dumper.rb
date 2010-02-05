@@ -112,7 +112,7 @@ private
     # create a placeholder AR class for the table without loading anything from the app.
     klass = eval "class #{table.classify} < ActiveRecord::Base; end"
     include_schema? ? load_table_schema(table) : clobber_records(table)
-    files = Dir[File.join(path, table, '*.yml')]
+    files = Dir[File.join(path, table, '**', '*.yml')]
     show_progress? && (progress_bar = ProgressBar.new(table, files.length))
     files.each do |file|
       fixture = Fixture.new(YAML.load(File.read(file)), klass)
