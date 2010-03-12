@@ -90,7 +90,7 @@ private
   end
   
   def dump_table(table)
-    clobber_fixtures(table)
+    clobber_fixtures_for_table(table)
     records = connection.select_all "SELECT * FROM %s" % table
     show_progress? && (progress_bar = ProgressBar.new(table, records.length))
     records.each_with_index do |record, index|
@@ -157,13 +157,13 @@ private
     end
   end
 
-  def clobber_fixtures(table)
+  def clobber_fixtures_for_table(table)
     `rm -rf #{File.join(path, table)}`
     `mkdir -p #{File.join(path, table)}`
   end
   
   def clobber_all_fixtures
-    fixtures_tables.each {|table| clobber_fixtures(table)}
+    fixtures_tables.each {|table| clobber_fixtures_for_table(table)}
   end
   
   def clobber_records(table)
