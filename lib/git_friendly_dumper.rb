@@ -116,13 +116,16 @@ private
     show_progress? && (progress_bar = ProgressBar.new(table, files.length))
     files.each do |file|
       fixture = Fixture.new(YAML.load(File.read(file)), klass)
-      connection.insert_fixture fixture, table
+      begin
+        connection.insert_fixture fixture, table
+      rescue Exception
+        puts "inserting fixture #{file} failed - check log for details"
+      end
       show_progress? && progress_bar.inc
     end
     show_progress? && progress_bar.finish
   rescue Exception => e
-    puts "loading #{table} failed: #{e.message}"
-    puts e.backtrace
+    puts "loading #{table} failed - check log for details"
   end
   
   def dump_table_schema(table)
