@@ -30,12 +30,17 @@ class GitFriendlyDumper
     end
     
     self.path             = File.expand_path(options[:path] || 'db/dump')
-    self.connection       = options[:connection] || ActiveRecord::Base.establish_connection(options[:connection_name] || Rails.env).connection
     self.tables           = options[:tables]
     self.force            = options.key?(:force) ? options[:force] : false
     self.include_schema   = options.key?(:include_schema) ? options[:include_schema] : false
     self.show_progress    = options.key?(:show_progress) ? options[:show_progress] : false
     self.clobber_fixtures = options.key?(:clobber_fixtures) ? options[:clobber_fixtures] : (options[:tables].blank? ? true : false)
+    self.connection       = options[:connection] || begin
+      if options[:connection_name]
+        ActiveRecord::Base.establish_connection(options[:connection_name])
+      end
+      ActiveRecord::Base.connection
+    end
   end
   
   def dump
