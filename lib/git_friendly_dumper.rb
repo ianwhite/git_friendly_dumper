@@ -6,7 +6,7 @@ begin; require 'progressbar'; rescue MissingSourceFile; end
 class GitFriendlyDumper
   include FileUtils
   
-  attr_accessor :path, :connection, :tables, :force, :include_schema, :show_progress, :clobber_fixtures
+  attr_accessor :path, :connection, :tables, :force, :include_schema, :show_progress, :clobber_fixtures, :limit
   alias_method :include_schema?, :include_schema
   alias_method :clobber_fixtures?, :clobber_fixtures
   alias_method :show_progress?, :show_progress
@@ -23,7 +23,7 @@ class GitFriendlyDumper
   end
   
   def initialize(options = {})
-    options.assert_valid_keys(:path, :connection, :connection_name, :tables, :force, :include_schema, :show_progress, :clobber_fixtures)
+    options.assert_valid_keys(:path, :connection, :connection_name, :tables, :force, :include_schema, :show_progress, :clobber_fixtures, :limit)
     
     if options[:show_progress] && !defined?(ProgressBar)
       raise RuntimeError, "GitFriendlyDumper requires the progressbar gem for progress option.\n  sudo gem install progressbar"
@@ -31,6 +31,7 @@ class GitFriendlyDumper
     
     self.path             = File.expand_path(options[:path] || 'db/dump')
     self.tables           = options[:tables]
+    self.limit            = options.key?(:limit) ? options[:limit].to_i : 2500
     self.force            = options.key?(:force) ? options[:force] : false
     self.include_schema   = options.key?(:include_schema) ? options[:include_schema] : false
     self.show_progress    = options.key?(:show_progress) ? options[:show_progress] : false
@@ -96,8 +97,26 @@ private
   
   def dump_table(table)
     clobber_fixtures_for_table(table)
-    records = connection.select_all "SELECT * FROM %s" % table
-    show_progress? && (progress_bar = ProgressBar.new(table, records.length))
+    count = connection.select_value("SELECT COUNT(id) FROM %s" % table).to_i
+    show_progress? && (progress_bar = ProgressBar.new(table, count))
+    
+    offset = 0
+    while (records = select_records(table, offset)).any?
+      dump_records(table, records, show_progress? && progress_bar)
+      offset += limit
+    end
+    
+    show_progress? && progress_bar.finish
+    dump_table_schema(table) if include_schema?
+  rescue Exception => e
+    puts "dumping #{table} failed: #{e.message}"
+  end
+  
+  def select_records(table, offset)
+    connection.select_all("SELECT * FROM %s LIMIT #{limit} OFFSET #{offset}" % table)
+  end
+  
+  def dump_records(table, records, progress_bar)
     records.each_with_index do |record, index|
       id = record['id'] ? record['id'].to_i : index + 1
       fixture_file = File.join(path, table, *id_path(id)) + ".yml"
@@ -107,10 +126,6 @@ private
       end
       show_progress? && progress_bar.inc
     end
-    show_progress? && progress_bar.finish
-    dump_table_schema(table) if include_schema?
-  rescue Exception => e
-    puts "dumping #{table} failed: #{e.message}"
   end
   
   def load_table(table)
