@@ -97,7 +97,7 @@ private
   
   def dump_table(table)
     clobber_fixtures_for_table(table)
-    count = connection.select_value("SELECT COUNT(id) FROM %s" % table).to_i
+    count = connection.select_value("SELECT COUNT(*) FROM %s" % table).to_i
     show_progress? && (progress_bar = ProgressBar.new(table, count))
     
     offset = 0
