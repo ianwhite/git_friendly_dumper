@@ -36,7 +36,9 @@ namespace :db do
       :force            => ['1', 'true'].include?(ENV['FORCE']) ? true : false,
       :include_schema   => ['1', 'true'].include?(ENV['SCHEMA']) ? true : false,
       :show_progress    => ['0', 'false'].include?(ENV['PROGRESS']) ? false : true,
-      :clobber_fixtures => ['1', 'true'].include?(ENV['CLOBBER']) ? true : false
+      :clobber_fixtures => ['1', 'true'].include?(ENV['CLOBBER']) ? true : false,
+      :limit            => ENV['LIMIT'] || 5000,
+      :raise_error      => ['0', 'false'].include?(ENV['RAISE_ERROR']) ? false : true
     }
   end
 end

@@ -6,11 +6,12 @@ begin; require 'progressbar'; rescue MissingSourceFile; end
 class GitFriendlyDumper
   include FileUtils
   
-  attr_accessor :path, :connection, :tables, :force, :include_schema, :show_progress, :clobber_fixtures, :limit
+  attr_accessor :path, :connection, :tables, :force, :include_schema, :show_progress, :clobber_fixtures, :limit, :raise_error
   alias_method :include_schema?, :include_schema
   alias_method :clobber_fixtures?, :clobber_fixtures
   alias_method :show_progress?, :show_progress
   alias_method :force?, :force
+  alias_method :raise_error?, :raise_error
   
   class << self
     def dump(options = {})
@@ -23,7 +24,7 @@ class GitFriendlyDumper
   end
   
   def initialize(options = {})
-    options.assert_valid_keys(:path, :connection, :connection_name, :tables, :force, :include_schema, :show_progress, :clobber_fixtures, :limit)
+    options.assert_valid_keys(:path, :connection, :connection_name, :tables, :force, :include_schema, :show_progress, :clobber_fixtures, :limit, :raise_error)
     
     if options[:show_progress] && !defined?(ProgressBar)
       raise RuntimeError, "GitFriendlyDumper requires the progressbar gem for progress option.\n  sudo gem install progressbar"
@@ -31,7 +32,8 @@ class GitFriendlyDumper
     
     self.path             = File.expand_path(options[:path] || 'db/dump')
     self.tables           = options[:tables]
-    self.limit            = options.key?(:limit) ? options[:limit].to_i : 2500
+    self.limit            = options.key?(:limit) ? options[:limit].to_i : 5000
+    self.raise_error      = options.key?(:raise_error) ? options[:raise_error] : true
     self.force            = options.key?(:force) ? options[:force] : false
     self.include_schema   = options.key?(:include_schema) ? options[:include_schema] : false
     self.show_progress    = options.key?(:show_progress) ? options[:show_progress] : false
@@ -108,8 +110,9 @@ private
     
     show_progress? && progress_bar.finish
     dump_table_schema(table) if include_schema?
-  rescue Exception => e
+  rescue ActiveRecord::ActiveRecordError => e
     puts "dumping #{table} failed: #{e.message}"
+    raise e if raise_error?
   end
   
   def select_records(table, offset)
@@ -138,14 +141,16 @@ private
       fixture = Fixture.new(YAML.load(File.read(file)), klass)
       begin
         connection.insert_fixture fixture, table
-      rescue Exception
-        puts "inserting fixture #{file} failed - check log for details"
+      rescue ActiveRecord::ActiveRecordError => e
+        puts "loading fixture #{file} failed - check log for details"
+        raise e if raise_error?
       end
       show_progress? && progress_bar.inc
     end
     show_progress? && progress_bar.finish
-  rescue Exception => e
+  rescue ActiveRecord::ActiveRecordError => e
     puts "loading #{table} failed - check log for details"
+    raise e if raise_error?
   end
   
   def dump_table_schema(table)
