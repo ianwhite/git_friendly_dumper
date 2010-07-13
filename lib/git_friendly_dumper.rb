@@ -6,7 +6,7 @@ begin; require 'progressbar'; rescue MissingSourceFile; end
 class GitFriendlyDumper
   include FileUtils
   
-  attr_accessor :path, :connection, :tables, :force, :include_schema, :show_progress, :clobber_fixtures, :limit, :raise_error
+  attr_accessor :path, :connection, :tables, :force, :include_schema, :show_progress, :clobber_fixtures, :limit, :raise_error, :fixtures
   alias_method :include_schema?, :include_schema
   alias_method :clobber_fixtures?, :clobber_fixtures
   alias_method :show_progress?, :show_progress
@@ -24,7 +24,12 @@ class GitFriendlyDumper
   end
   
   def initialize(options = {})
-    options.assert_valid_keys(:path, :connection, :connection_name, :tables, :force, :include_schema, :show_progress, :clobber_fixtures, :limit, :raise_error)
+    options.assert_valid_keys(:path, :connection, :connection_name, :tables, :force, :include_schema, :show_progress, :clobber_fixtures, :limit, :raise_error, :fixtures)
+
+    if options[:fixtures] && (options[:tables] || options[:include_schema] || options[:clobber_fixtures])
+      puts options.to_yaml
+      raise ArgumentError, "GitFriendlyDumper if :fixtures option given, neither :tables, :include_schema, or :clobber_fixtures can be given"
+    end
     
     if options[:show_progress] && !defined?(ProgressBar)
       raise RuntimeError, "GitFriendlyDumper requires the progressbar gem for progress option.\n  sudo gem install progressbar"
@@ -32,6 +37,7 @@ class GitFriendlyDumper
     
     self.path             = File.expand_path(options[:path] || 'db/dump')
     self.tables           = options[:tables]
+    self.fixtures         = options[:fixtures]
     self.limit            = options.key?(:limit) ? options[:limit].to_i : 5000
     self.raise_error      = options.key?(:raise_error) ? options[:raise_error] : true
     self.force            = options.key?(:force) ? options[:force] : false
@@ -47,6 +53,9 @@ class GitFriendlyDumper
   end
   
   def dump
+    if fixtures
+      raise ArgumentError, "Cannot dump when :fixtures option is given"
+    end
     self.tables ||= db_tables
     tables.delete('schema_migrations') unless include_schema?
     if force? || (tables & fixtures_tables).empty? || confirm?(:dump)
@@ -59,14 +68,7 @@ class GitFriendlyDumper
   end
   
   def load
-    self.tables ||= fixtures_tables
-    tables.delete('schema_migrations') unless include_schema?
-    if force? || (tables & db_tables).empty? || confirm?(:load)
-      puts "Loading data#{' and structure' if include_schema?} into #{current_database_name} from #{path.sub("#{RAILS_ROOT}/",'')}\n"
-      connection.transaction do
-        tables.each {|table| load_table(table) }
-      end
-    end
+    fixtures ? load_fixtures : load_tables
   end
 
 private
@@ -82,7 +84,11 @@ private
       puts "\nWARNING: the following #{type == :dump ? 'fixtures' : 'tables'} in #{type == :dump ? dump_path : current_database_name}:"
       puts "  " + tables.join("\n  ")
     end
-    puts "will be replaced with #{type == :dump ? 'records' : 'fixtures'}#{' and table schemas' if include_schema?} from #{type == :dump ? current_database_name : dump_path}."
+    if fixtures
+      puts "will have records replaced by the specified #{fixtures.length} fixtures (deleting if fixture file is missing)"
+    else
+      puts "will be replaced with #{type == :dump ? 'records' : 'fixtures'}#{' and table schemas' if include_schema?} from #{type == :dump ? current_database_name : dump_path}."
+    end
     puts "Do you wish to proceed? (type 'yes' to proceed)"
     returning $stdin.gets.downcase.strip == 'yes' do |proceed|
       puts "#{type.to_s.capitalize} cancelled at user's request." unless proceed
@@ -95,6 +101,46 @@ private
   
   def db_tables
     @db_tables ||= connection.tables
+  end
+  
+  def load_tables
+    self.tables ||= fixtures_tables
+    tables.delete('schema_migrations') unless include_schema?
+    if force? || (tables & db_tables).empty? || confirm?(:load)
+      puts "Loading data#{' and structure' if include_schema?} into #{current_database_name} from #{path.sub("#{RAILS_ROOT}/",'')}\n"
+      connection.transaction do
+        tables.each {|table| load_table(table) }
+      end
+    end
+  end
+  
+  def load_fixtures
+    self.tables = []
+    fixtures.each do |f|
+      raise ArgumentError, "Fixture filename error: #{f} should be a relative filename e.g. users/0000/0001.yml" unless f =~ /^\w+\/\d+\/\d+\.yml$/
+      table = f.split('/').first
+      unless tables.include?(table)
+        klass = eval "class #{table.classify} < ActiveRecord::Base; end"
+        tables << table
+      end
+    end
+  
+    if force? || (tables & db_tables).empty? || confirm?(:load)
+      puts "Loading fixtures into #{current_database_name} from #{path.sub("#{RAILS_ROOT}/",'')}\n"
+      show_progress? && (progress_bar = ProgressBar.new("fixtures", fixtures.length))
+      connection.transaction do
+        fixtures.each do |fixture|
+          match_data = fixture.match(/(\w+)\/(.+)\.yml/)
+          table, id, file = match_data[1], match_data[2].sub('/','').to_i, File.join(path, fixture)
+          
+          raise "Couldn't determine id from #{fixture} (id was #{id})" if id < 1
+          connection.delete("DELETE FROM #{table} WHERE id=#{id};")
+          load_fixture(table.classify.constantize, table, file) if File.exist?(file)
+          show_progress? && progress_bar.inc
+        end
+      end
+      show_progress && progress_bar.finish
+    end
   end
   
   def dump_table(table)
@@ -138,19 +184,23 @@ private
     files = Dir[File.join(path, table, '**', '*.yml')]
     show_progress? && (progress_bar = ProgressBar.new(table, files.length))
     files.each do |file|
-      fixture = Fixture.new(YAML.load(File.read(file)), klass)
-      begin
-        connection.insert_fixture fixture, table
-      rescue ActiveRecord::ActiveRecordError => e
-        puts "loading fixture #{file} failed - check log for details"
-        raise e if raise_error?
-      end
+      load_fixture(klass, table, file)
       show_progress? && progress_bar.inc
     end
     show_progress? && progress_bar.finish
   rescue ActiveRecord::ActiveRecordError => e
     puts "loading #{table} failed - check log for details"
     raise e if raise_error?
+  end
+  
+  def load_fixture(klass, table, file)
+    fixture = Fixture.new(YAML.load(File.read(file)), klass)
+    begin
+      connection.insert_fixture fixture, table
+    rescue ActiveRecord::ActiveRecordError => e
+      puts "loading fixture #{file} failed - check log for details"
+      raise e if raise_error?
+    end
   end
   
   def dump_table_schema(table)

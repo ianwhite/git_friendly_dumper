@@ -31,14 +31,15 @@ namespace :db do
   
   def gfd_options
     { 
-      :tables           => ENV['TABLES'] && ENV['TABLES'].split(',').map(&:squish),
+      :tables           => ENV['TABLES'].present? && ENV['TABLES'].split(',').map(&:squish),
       :path             => ENV['DUMP_PATH'] || 'db/dump',
       :force            => ['1', 'true'].include?(ENV['FORCE']) ? true : false,
       :include_schema   => ['1', 'true'].include?(ENV['SCHEMA']) ? true : false,
       :show_progress    => ['0', 'false'].include?(ENV['PROGRESS']) ? false : true,
       :clobber_fixtures => ['1', 'true'].include?(ENV['CLOBBER']) ? true : false,
       :limit            => ENV['LIMIT'] || 5000,
-      :raise_error      => ['0', 'false'].include?(ENV['RAISE_ERROR']) ? false : true
+      :raise_error      => ['0', 'false'].include?(ENV['RAISE_ERROR']) ? false : true,
+      :fixtures         => ENV['FIXTURES'] && ENV['FIXTURES'].split(',').map()
     }
   end
 end
