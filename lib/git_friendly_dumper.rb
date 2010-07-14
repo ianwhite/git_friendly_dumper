@@ -6,7 +6,7 @@ begin; require 'progressbar'; rescue MissingSourceFile; end
 class GitFriendlyDumper
   include FileUtils
   
-  attr_accessor :path, :connection, :tables, :force, :include_schema, :show_progress, :clobber_fixtures, :limit, :raise_error, :fixtures
+  attr_accessor :root, :path, :connection, :tables, :force, :include_schema, :show_progress, :clobber_fixtures, :limit, :raise_error, :fixtures
   alias_method :include_schema?, :include_schema
   alias_method :clobber_fixtures?, :clobber_fixtures
   alias_method :show_progress?, :show_progress
@@ -24,8 +24,10 @@ class GitFriendlyDumper
   end
   
   def initialize(options = {})
-    options.assert_valid_keys(:path, :connection, :connection_name, :tables, :force, :include_schema, :show_progress, :clobber_fixtures, :limit, :raise_error, :fixtures)
+    options.assert_valid_keys(:root, :path, :connection, :connection_name, :tables, :force, :include_schema, :show_progress, :clobber_fixtures, :limit, :raise_error, :fixtures)
 
+    self.root = options[:root] || (defined?(Rails) && Rails.root) || pwd
+    
     if options[:fixtures] && (options[:include_schema] || options[:clobber_fixtures])
       puts options.to_yaml
       raise ArgumentError, "GitFriendlyDumper if :fixtures option given, neither :include_schema, or :clobber_fixtures can be given"
@@ -59,7 +61,7 @@ class GitFriendlyDumper
     self.tables ||= db_tables
     tables.delete('schema_migrations') unless include_schema?
     if force? || (tables & fixtures_tables).empty? || confirm?(:dump)
-      puts "Dumping data#{' and structure' if include_schema?} from #{current_database_name} to #{path.sub("#{RAILS_ROOT}/",'')}\n"
+      puts "Dumping data#{' and structure' if include_schema?} from #{current_database_name} to #{path.sub("#{root}/",'')}\n"
       clobber_all_fixtures if clobber_fixtures?
       connection.transaction do
         tables.each {|table| dump_table(table) }
@@ -73,11 +75,11 @@ class GitFriendlyDumper
 
 private
   def current_database_name
-    @current_database_name ||= (connection.respond_to?(:current_database) && connection.current_database) || RAILS_ENV
+    @current_database_name ||= (connection.respond_to?(:current_database) && connection.current_database)
   end
   
   def confirm?(type)
-    dump_path = path.sub("#{RAILS_ROOT}/", '')
+    dump_path = path.sub("#{root}/", '')
     if clobber_fixtures? && type == :dump
       puts "\nWARNING: all fixtures in #{dump_path}"
     else
@@ -107,7 +109,7 @@ private
     self.tables ||= fixtures_tables
     tables.delete('schema_migrations') unless include_schema?
     if force? || (tables & db_tables).empty? || confirm?(:load)
-      puts "Loading data#{' and structure' if include_schema?} into #{current_database_name} from #{path.sub("#{RAILS_ROOT}/",'')}\n"
+      puts "Loading data#{' and structure' if include_schema?} into #{current_database_name} from #{path.sub("#{root}/",'')}\n"
       connection.transaction do
         tables.each {|table| load_table(table) }
       end
@@ -131,7 +133,7 @@ private
     self.tables = fixtures_tables
   
     if force? || (tables & db_tables).empty? || confirm?(:load)
-      puts "Loading fixtures into #{current_database_name} from #{path.sub("#{RAILS_ROOT}/",'')}\n"
+      puts "Loading fixtures into #{current_database_name} from #{path.sub("#{root}/",'')}\n"
       show_progress? && (progress_bar = ProgressBar.new("fixtures", fixtures.length))
       connection.transaction do
         fixtures.each do |fixture|

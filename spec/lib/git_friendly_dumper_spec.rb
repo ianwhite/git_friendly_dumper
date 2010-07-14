@@ -45,7 +45,7 @@ module GitFriendlyDumperSpec
 
     before do
       reset_db
-      @path = File.join(File.dirname(__FILE__), '../resources/dump')
+      @path = File.join(File.dirname(__FILE__), '../../tmp/dump')
       remove_dump
     end
     
