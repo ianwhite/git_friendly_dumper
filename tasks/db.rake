@@ -37,7 +37,7 @@ namespace :db do
       :include_schema   => ['1', 'true'].include?(ENV['SCHEMA']) ? true : false,
       :show_progress    => ['0', 'false'].include?(ENV['PROGRESS']) ? false : true,
       :clobber_fixtures => ['1', 'true'].include?(ENV['CLOBBER']) ? true : false,
-      :limit            => ENV['LIMIT'] || 5000,
+      :limit            => ENV['LIMIT'] || 2500,
       :raise_error      => ['0', 'false'].include?(ENV['RAISE_ERROR']) ? false : true,
       :fixtures         => ENV['FIXTURES'] && ENV['FIXTURES'].split(',').map()
     }

@@ -26,9 +26,9 @@ class GitFriendlyDumper
   def initialize(options = {})
     options.assert_valid_keys(:path, :connection, :connection_name, :tables, :force, :include_schema, :show_progress, :clobber_fixtures, :limit, :raise_error, :fixtures)
 
-    if options[:fixtures] && (options[:tables] || options[:include_schema] || options[:clobber_fixtures])
+    if options[:fixtures] && (options[:include_schema] || options[:clobber_fixtures])
       puts options.to_yaml
-      raise ArgumentError, "GitFriendlyDumper if :fixtures option given, neither :tables, :include_schema, or :clobber_fixtures can be given"
+      raise ArgumentError, "GitFriendlyDumper if :fixtures option given, neither :include_schema, or :clobber_fixtures can be given"
     end
     
     if options[:show_progress] && !defined?(ProgressBar)
@@ -38,7 +38,7 @@ class GitFriendlyDumper
     self.path             = File.expand_path(options[:path] || 'db/dump')
     self.tables           = options[:tables]
     self.fixtures         = options[:fixtures]
-    self.limit            = options.key?(:limit) ? options[:limit].to_i : 5000
+    self.limit            = options.key?(:limit) ? options[:limit].to_i : 2500
     self.raise_error      = options.key?(:raise_error) ? options[:raise_error] : true
     self.force            = options.key?(:force) ? options[:force] : false
     self.include_schema   = options.key?(:include_schema) ? options[:include_schema] : false
@@ -115,15 +115,20 @@ private
   end
   
   def load_fixtures
-    self.tables = []
-    fixtures.each do |f|
-      raise ArgumentError, "Fixture filename error: #{f} should be a relative filename e.g. users/0000/0001.yml" unless f =~ /^\w+\/\d+\/\d+\.yml$/
-      table = f.split('/').first
-      unless tables.include?(table)
-        klass = eval "class #{table.classify} < ActiveRecord::Base; end"
-        tables << table
+    fixtures_tables = []
+    fixtures.map! do |fixture|
+      raise ArgumentError, "Fixture filename error: #{fixture} should be a relative filename e.g. users/0000/0001.yml" unless fixture =~ /^\w+\/\d+\/\d+\.yml$/
+      table = fixture.split('/').first
+      if (!tables || tables.include?(table))
+        unless fixtures_tables.include?(table)
+          klass = eval "class #{table.classify} < ActiveRecord::Base; end"
+          fixtures_tables << table
+        end
+        fixture
       end
     end
+  
+    self.tables = fixtures_tables
   
     if force? || (tables & db_tables).empty? || confirm?(:load)
       puts "Loading fixtures into #{current_database_name} from #{path.sub("#{RAILS_ROOT}/",'')}\n"
