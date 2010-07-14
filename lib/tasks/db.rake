@@ -6,6 +6,8 @@
 #  PROGRESS=false|0       show progress             (default true)
 #  CLOBBER=false|0        clobber fixtures on dump  (default true)
 #
+require 'git_friendly_dumper'
+
 namespace :db do
   desc "dump structure and data to db/dump (DUMP_PATH)"
   task :dump => :environment do

@@ -3,6 +3,8 @@ Given /^there is a connection$/ do
 end
 
 Given /^an empty database$/ do
+  require 'active_record'
+  ActiveRecord::Base.establish_connection(:adapter  => "sqlite3", :database => "#{current_dir}/test.sqlite3")
   ActiveRecord::Base.connection.tables.each do |table|
     ActiveRecord::Base.connection.drop_table table
   end

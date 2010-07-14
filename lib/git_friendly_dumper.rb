@@ -1,5 +1,7 @@
 require 'fileutils'
+require 'active_support/all'
 require 'active_record/fixtures'
+
 begin; require 'progressbar'; rescue MissingSourceFile; end
 
 # Database independent and git friendly replacement for mysqldump for rails projects
@@ -75,7 +77,7 @@ class GitFriendlyDumper
 
 private
   def current_database_name
-    @current_database_name ||= (connection.respond_to?(:current_database) && connection.current_database)
+    @current_database_name ||= (connection.respond_to?(:current_database) && connection.current_database) || 'database'
   end
   
   def confirm?(type)
