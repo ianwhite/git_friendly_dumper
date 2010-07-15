@@ -11,7 +11,7 @@ Feature: Dump a database
      | Jane          | Heidie           |
     
   Scenario: test step works
-    Then the "users" table should consist of:
+    Then the "users" table should match exactly (ignoring ids and timestamps):
      | name  | surname |
      | Fred  | Bloggs  |
      | Ethel | Smith   |

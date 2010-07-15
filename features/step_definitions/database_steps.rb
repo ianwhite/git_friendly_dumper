@@ -38,6 +38,14 @@ Then /^the "([^"]*)" table should consist of:$/ do |table_name, table|
   table.diff!(table_contents(table_name))
 end
 
+Then /^the "([^"]*)" table should match exactly:$/ do |table_name, table|
+  table.diff!(table_contents(table_name), :surplus_col => true)
+end
+
+Then /^the "([^"]*)" table should match exactly \(ignoring ids and timestamps\):$/ do |table_name, table|
+  table.diff!(table_contents(table_name, :ids => false, :timestamps => false), :surplus_col => true)
+end
+
 module DatabaseHelpers
   def create_table(name)
     ActiveRecord::Base.connection.create_table name do
@@ -67,8 +75,15 @@ module DatabaseHelpers
     class_for_table(table_name).create! attrs
   end
 
-  def table_contents(table_name)
+  # table_contents 'users' # gives back everything
+  # table_contents 'users', :timestamps => false # without timestamps
+  # table_contents 'users', :ids => false # without ids
+  def table_contents(table_name, opts={:timestamps => true, :ids => true})
     contents = class_for_table(table_name).all.map(&:attributes)
+    contents.tap do |contents|
+      contents.map{|c| c.delete('id')} unless opts[:ids]
+      contents.map{|c| c.delete('updated_at'); c.delete('created_at')} unless opts[:timestamps]
+    end
   end
 end
 
