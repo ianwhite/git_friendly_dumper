@@ -37,4 +37,26 @@ Feature: Dump a database
     And the following files should exist:
       | db/override/users/schema.rb |
 
+
+  Scenario: dump specific tables
+    Given the database has a "seen" table (with timestamps):
+     | bird (string) | seen (integer) |
+     | Parrot        | 1              |
+     | Robin         | 3              |
+     | Goldfinch     | 6              |
+    Given the database has a "notes" table:
+      | content (text)          |
+      | Fred spotted a parrot?? |
+
+    When I successfully run "rake db:dump TABLES=seen,users"
+    Then the output should contain "Dumping data and structure from database to db/dump"
+    And the following directories should exist:
+      | db/dump/users |
+      | db/dump/seen |
+    And the following files should exist:
+      | db/dump/users/schema.rb |
+      | db/dump/seen/schema.rb  |
+    But the following directories should not exist:
+      | db/dump/notes |
+
   
