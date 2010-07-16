@@ -1,4 +1,5 @@
 Feature: Dump a database
+# n.b. FORCE=1 short-circuits stdin prompts to 'yes', i.e. run as non-interactive
 
   Background:
     Given I am in an empty app
@@ -19,7 +20,7 @@ Feature: Dump a database
   
   @announce
   Scenario: rake db:dump
-    When I successfully run "rake db:dump"
+    When I successfully run "rake db:dump FORCE=1"
     Then the output should contain "Dumping data and structure from database to db/dump"
     And the following directories should exist:
       | db/dump/users |
@@ -30,7 +31,7 @@ Feature: Dump a database
 
 
   Scenario: change dump path
-    When I successfully run "rake db:dump DUMP_PATH=db/override"
+    When I successfully run "rake db:dump FORCE=1 DUMP_PATH=db/override"
     Then the output should contain "Dumping data and structure from database to db/override"
     And the following directories should exist:
       | db/override/users |
@@ -48,7 +49,7 @@ Feature: Dump a database
       | content (text)          |
       | Fred spotted a parrot?? |
 
-    When I successfully run "rake db:dump TABLES=seen,users"
+    When I successfully run "rake db:dump FORCE=1 TABLES=seen,users"
     Then the output should contain "Dumping data and structure from database to db/dump"
     And the following directories should exist:
       | db/dump/users |
