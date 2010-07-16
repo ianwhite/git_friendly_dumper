@@ -60,4 +60,24 @@ Feature: Dump a database
     But the following directories should not exist:
       | db/dump/notes |
 
+
+  @wip
+  Scenario: silence runtime errors
+    When I run "rake db:dump FORCE=1 TABLES=doesntexist"
+    Then the exit status should be 1
+    And the output should contain "dumping doesntexist failed: SQLite3::SQLException: no such table: doesntexist: SELECT COUNT(*) FROM doesntexist"
+
+    When I run "rake db:dump FORCE=1 TABLES=doesntexist RAISE_ERROR=0"
+    Then the exit status should be 0
+    But the output should contain "dumping doesntexist failed: SQLite3::SQLException: no such table: doesntexist: SELECT COUNT(*) FROM doesntexist"
+
+    When I run "rake db:dump FORCE=1 TABLES=alsodoesntexist RAISE_ERROR=false"
+    Then the exit status should be 0
+    But the output should contain "dumping alsodoesntexist failed: SQLite3::SQLException: no such table: alsodoesntexist: SELECT COUNT(*) FROM alsodoesntexist"
+
+    And the following directories should not exist:
+      | db/dump/doesntexist     |
+      | db/dump/alsodoesntexist |
+
+
   
