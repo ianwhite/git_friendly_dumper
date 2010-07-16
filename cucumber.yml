@@ -1,0 +1,2 @@
+default: --strict --expand --format <%= ENV['CUCUMBER_FORMAT'] || 'progress' %> --tags ~@wip
+wip: --tags @wip:3 --expand --format <%= ENV['CUCUMBER_FORMAT'] || 'pretty' %> --wip features
