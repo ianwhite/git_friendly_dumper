@@ -27,4 +27,14 @@ Feature: Dump a database
       | db/dump/users/schema.rb |
     When I successfully run "cat db/dump/users/**/*"
     Then I can verify the content of the dump yml files
+
+
+  Scenario: change dump path
+    When I successfully run "rake db:dump DUMP_PATH=db/override"
+    Then the output should contain "Dumping data and structure from database to db/override"
+    And the following directories should exist:
+      | db/override/users |
+    And the following files should exist:
+      | db/override/users/schema.rb |
+
   
