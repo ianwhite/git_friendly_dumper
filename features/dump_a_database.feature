@@ -17,10 +17,14 @@ Feature: Dump a database
      | Ethel | Smith   |
      | Jane  | Heidie  |
   
-  Scenario: rake db:dump FORCE=true
+  @announce
+  Scenario: rake db:dump
     When I successfully run "rake db:dump"
     Then the output should contain "Dumping data and structure from database to db/dump"
     And the following directories should exist:
       | db/dump/users |
     And the following files should exist:
       | db/dump/users/schema.rb |
+    When I successfully run "cat db/dump/users/**/*"
+    Then I can verify the content of the dump yml files
+  
