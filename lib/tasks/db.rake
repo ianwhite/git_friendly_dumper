@@ -5,7 +5,8 @@
 #  FORCE=true|1           answer 'yes'              (default false)
 #  PROGRESS=false|0       show progress             (default true)
 #  CLOBBER=false|0        clobber fixtures on dump  (default true)
-#
+#  RAISE_ERROR=false|0    silence runtime errors    (default true)
+#  TODO: FIXTURES=???
 require 'git_friendly_dumper'
 
 namespace :db do
