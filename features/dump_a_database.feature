@@ -13,14 +13,6 @@ Feature: Dump a database
 
 
 
-  Scenario: test step works
-    Then the "users" table should match exactly (ignoring ids and timestamps):
-     | name  | surname |
-     | Fred  | Bloggs  |
-     | Ethel | Smith   |
-     | Jane  | Heidie  |
-
-
   @announce
   Scenario: rake db:dump
     When I successfully run "rake db:dump FORCE=1"
