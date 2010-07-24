@@ -50,6 +50,14 @@ When /^I destroy record (\d+) from the "([^"]*)" table$/ do |id, table_name|
   class_for_table(table_name).destroy(id)
 end
 
+Then /^I can verify the content of the dump yml files$/ do
+  yml = YAML.parse File.open(File.join(current_dir, 'db/dump/users/0000/0001.yml'))
+  yml_hash = yml.transform
+  %w(updated_at created_at).each {|datetime| yml_hash[datetime] = DateTime.parse(yml_hash[datetime])}
+
+  user_1 = class_for_table('users').find(1)
+  user_1.attributes.should == yml_hash
+end
 
 module DatabaseHelpers
   def create_table(name)
