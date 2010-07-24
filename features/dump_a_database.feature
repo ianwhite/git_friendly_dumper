@@ -88,3 +88,80 @@ Feature: Dump a database
     Then the exit status should be 1
     And the output should contain "Cannot dump when :fixtures option is given"
 
+
+
+  Scenario: fixtures belonging to deleted records are deleted and not recreated
+    When I run "rake db:dump FORCE=1"
+    Then the following files should exist:
+      | db/dump/users/0000/0001.yml |
+      | db/dump/users/0000/0002.yml |
+      | db/dump/users/0000/0003.yml |
+
+    When I destroy record 1 from the "users" table
+    And I run "rake db:dump FORCE=1"
+    Then the following files should exist:
+      | db/dump/users/0000/0002.yml |
+      | db/dump/users/0000/0003.yml |
+    But the following files should not exist:
+      | db/dump/users/0000/0001.yml |
+
+
+
+  Scenario: when dumping specific TABLES= any other tables' fixtures are left alone (even if deleted)
+    Given the database has a "debts" table (with timestamps):
+     | name (string) | surname (string) |
+     | Fred          | Bloggs           |
+     | Ethel         | Smith            |
+
+    When I run "rake db:dump FORCE=1"
+    Then the following files should exist:
+      | db/dump/users/0000/0001.yml |
+      | db/dump/users/0000/0002.yml |
+      | db/dump/users/0000/0003.yml |
+      | db/dump/debts/0000/0001.yml |
+      | db/dump/debts/0000/0002.yml |
+
+    When I destroy record 1 from the "debts" table
+    And I run "rake db:dump FORCE=1 TABLES=users"
+    Then the following files should exist:
+      | db/dump/users/0000/0001.yml |
+      | db/dump/users/0000/0002.yml |
+      | db/dump/users/0000/0003.yml |
+      | db/dump/debts/0000/0001.yml |
+      | db/dump/debts/0000/0002.yml |
+
+
+
+  Scenario Outline: CLOBBER= removes all existing fixtures before dumping new ones, combining with TABLES= means only those tables' fixtures will exist
+    Given the database has a "debts" table (with timestamps):
+     | name (string) | surname (string) |
+     | Fred          | Bloggs           |
+     | Ethel         | Smith            |
+    When I run "rake db:dump FORCE=1"
+    Then the following files should exist:
+      | db/dump/users/0000/0001.yml |
+      | db/dump/users/0000/0002.yml |
+      | db/dump/users/0000/0003.yml |
+      | db/dump/debts/0000/0001.yml |
+      | db/dump/debts/0000/0002.yml |
+
+    When I destroy record 1 from the "users" table
+    And I run "rake db:dump FORCE=1 TABLES=users CLOBBER=<CLOBBER>"
+    Then the following files should exist:
+      | db/dump/users/0000/0002.yml |
+      | db/dump/users/0000/0003.yml |
+    But the following files should not exist:
+      | db/dump/users/0000/0001.yml |
+    And the following files <EXISTENCE>:
+      | db/dump/debts/0000/0001.yml |
+      | db/dump/debts/0000/0002.yml |
+
+    Scenarios: deleting existing dump fixtures with CLOBBER=true|1
+      | CLOBBER | EXISTENCE         |
+      | true    | should not exist  |
+      | 1       | should not exist  |
+
+    Scenarios: not deleting existing dump fixtures with CLOBBER=false|0
+      | CLOBBER | EXISTENCE    |
+      | false   | should exist |
+      | 0       | should exist |

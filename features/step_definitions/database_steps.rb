@@ -46,6 +46,11 @@ Then /^the "([^"]*)" table should match exactly \(ignoring ids and timestamps\):
   table.diff!(table_contents(table_name, :ids => false, :timestamps => false), :surplus_col => true)
 end
 
+When /^I destroy record (\d+) from the "([^"]*)" table$/ do |id, table_name|
+  class_for_table(table_name).destroy(id)
+end
+
+
 module DatabaseHelpers
   def create_table(name)
     ActiveRecord::Base.connection.create_table name do
