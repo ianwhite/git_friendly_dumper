@@ -167,6 +167,7 @@ private
     dump_table_schema(table) if include_schema?
   rescue ActiveRecord::ActiveRecordError => e
     puts "dumping #{table} failed: #{e.message}"
+    puts "Partial dump files have been left behind and you should clean up before continuing (e.g. git status, git checkout, git clean)."
     raise e if raise_error?
   end
   

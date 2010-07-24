@@ -82,4 +82,11 @@ Feature: Dump a database
 
 
 
-  
+  Scenario: dirty directory warning on failed dump
+    When I run "rake db:dump FORCE=1 TABLES=doesntexist"
+    Then the exit status should be 1
+    And the following directories should exist:
+      | db/dump/doesntexist     |
+    And the output should contain "Partial dump files have been left behind and you should clean up before continuing (e.g. git status, git checkout, git clean)."
+
+
