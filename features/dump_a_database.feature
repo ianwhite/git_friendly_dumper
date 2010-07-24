@@ -10,14 +10,17 @@ Feature: Dump a database
      | Fred          | Bloggs           |
      | Ethel         | Smith            |
      | Jane          | Heidie           |
-    
+
+
+
   Scenario: test step works
     Then the "users" table should match exactly (ignoring ids and timestamps):
      | name  | surname |
      | Fred  | Bloggs  |
      | Ethel | Smith   |
      | Jane  | Heidie  |
-  
+
+
   @announce
   Scenario: rake db:dump
     When I successfully run "rake db:dump FORCE=1"
@@ -30,6 +33,7 @@ Feature: Dump a database
     Then I can verify the content of the dump yml files
 
 
+
   Scenario: change dump path
     When I successfully run "rake db:dump FORCE=1 DUMP_PATH=db/override"
     Then the output should contain "Dumping data and structure from database to db/override"
@@ -37,6 +41,7 @@ Feature: Dump a database
       | db/override/users |
     And the following files should exist:
       | db/override/users/schema.rb |
+
 
 
   Scenario: dump specific tables
