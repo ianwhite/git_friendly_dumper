@@ -90,3 +90,9 @@ Feature: Dump a database
     And the output should contain "Partial dump files have been left behind and you should clean up before continuing (e.g. git status, git checkout, git clean)."
 
 
+
+  Scenario: invalid FIXTURES argument raises an error
+    When I run "rake db:dump FORCE=1 FIXTURES=a_fixture.yml"
+    Then the exit status should be 1
+    And the output should contain "Cannot dump when :fixtures option is given"
+
