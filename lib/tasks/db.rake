@@ -6,7 +6,7 @@
 #  PROGRESS=false|0       show progress             (default true)
 #  CLOBBER=false|0        clobber fixtures on dump  (default true)
 #  RAISE_ERROR=false|0    silence runtime errors    (default true)
-#  TODO: FIXTURES=???
+#  FIXTURES -- specific fixture files to load, invalid argument for dump tasks TODO: params format example
 require 'git_friendly_dumper'
 
 namespace :db do
