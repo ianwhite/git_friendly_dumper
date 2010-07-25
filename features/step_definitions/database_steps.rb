@@ -4,6 +4,7 @@ end
 
 Given /^an empty database$/ do
   require 'active_record'
+  ActiveRecord::Base.default_timezone = :utc #rather than local, so the offsets in the DB make sense & are same as rails >(=?) 2.1
   ActiveRecord::Base.establish_connection(:adapter  => "sqlite3", :database => "#{current_dir}/test.sqlite3")
   ActiveRecord::Base.connection.tables.each do |table|
     ActiveRecord::Base.connection.drop_table table
@@ -52,7 +53,7 @@ end
 
 Then /^I can verify the content of the dump yml files$/ do
   yml_hash = hash_from_yml read_fixture_yml('db/dump/users/0000/0001.yml')
-  %w(updated_at created_at).each {|datetime| yml_hash[datetime] = DateTime.parse(yml_hash[datetime])}
+  convert_hash_timestamp_strings_to_datetimes! yml_hash
   user_1 = class_for_table('users').find(1)
   user_1.attributes.should == yml_hash
 end
@@ -64,6 +65,10 @@ module FixtureHelpers
   
   def hash_from_yml(yml)
     YAML.parse(yml).transform
+  end
+  
+  def convert_hash_timestamp_strings_to_datetimes!(hash)
+    %w(updated_at created_at).each {|datetime| hash[datetime] = DateTime.parse(hash[datetime])}
   end
 end
 World(FixtureHelpers)
