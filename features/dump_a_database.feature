@@ -59,18 +59,26 @@ Feature: Dump a database
 
 
 
-  Scenario: silence runtime errors
+  Scenario: by default runtime errors are raised
     When I run "rake db:dump FORCE=1 TABLES=doesntexist"
     Then the exit status should be 1
     And the output should contain "dumping doesntexist failed: SQLite3::SQLException: no such table: doesntexist: SELECT COUNT(*) FROM doesntexist"
 
-    When I run "rake db:dump FORCE=1 TABLES=doesntexist RAISE_ERROR=0"
-    Then the exit status should be 0
+
+  Scenario Outline: RAISE_ERROR= toggles silence or raise runtime errors
+    When I run "rake db:dump FORCE=1 TABLES=doesntexist RAISE_ERROR=<RAISE_ERROR>"
+    Then the exit status should be <EXIT_STATUS>
     But the output should contain "dumping doesntexist failed: SQLite3::SQLException: no such table: doesntexist: SELECT COUNT(*) FROM doesntexist"
 
-    When I run "rake db:dump FORCE=1 TABLES=alsodoesntexist RAISE_ERROR=false"
-    Then the exit status should be 0
-    But the output should contain "dumping alsodoesntexist failed: SQLite3::SQLException: no such table: alsodoesntexist: SELECT COUNT(*) FROM alsodoesntexist"
+    Scenarios: raise
+    | RAISE_ERROR | EXIT_STATUS |
+    | false       | 0           |
+    | 0           | 0           |
+
+    Scenarios: don't raise
+    | RAISE_ERROR | EXIT_STATUS |
+    | true        | 1           |
+    | 1           | 1           |
 
 
 
