@@ -51,20 +51,40 @@ When /^I destroy record (\d+) from the "([^"]*)" table$/ do |id, table_name|
   class_for_table(table_name).destroy(id)
 end
 
-Then /^I can verify the content of the dump yml files$/ do
-  yml_hash = hash_from_yml read_fixture_yml('db/dump/users/0000/0001.yml')
-  convert_hash_timestamp_strings_to_datetimes! yml_hash
-  user_1 = class_for_table('users').find(1)
-  user_1.attributes.should == yml_hash
+Then /^the data in the dumped "([^"]*)" yaml files should match the database contents$/ do |table_name|
+  records = class_for_table(table_name).all
+  fixtures = fixtures_for_table(table_name)
+  records.count.should == fixtures.length
+  records.each {|record| match_fixture_file_against_record(record, table_name)}
 end
 
 module FixtureHelpers
   def read_fixture_yml(filepath)
-    File.read File.join(current_dir, filepath)
+    yml = File.read filepath
+    announce "#{filepath} YAML:\n" << yml if @announce
+    yml
+  end
+
+  def fixture_path_for(record, table_name)
+    fixture_id_path = ("%08d" % record.id).scan(/..../).join('/')
+    File.join current_dir, "db/dump", table_name, "#{fixture_id_path}.yml"
   end
   
   def hash_from_yml(yml)
     YAML.parse(yml).transform
+  end
+
+  def match_fixture_file_against_record(record, table_name)
+    yml_hash = hash_from_yml read_fixture_yml(fixture_path_for(record, table_name))
+    convert_hash_timestamp_strings_to_datetimes! yml_hash
+    record.attributes.should == yml_hash
+    announce "#{table_name.singularize} #{record.id} data matches its fixture data #{fixture_path_for(record, table_name)}" if @announce
+  end
+  
+  def fixtures_for_table(table_name)
+    fixtures = Dir.glob File.join(current_dir, "db/dump", table_name, '**', '*.yml')
+    announce "Fixtures for #{table_name}:\n#{fixtures.join("\n")}\n" if @announce
+    fixtures
   end
   
   def convert_hash_timestamp_strings_to_datetimes!(hash)

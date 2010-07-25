@@ -15,7 +15,7 @@ Feature: Dump a database
       | 01001010123      |
 
 
-  @announce @wip
+
   Scenario: rake db:dump dumps all tables' contents and the schema
     When I successfully run "rake db:dump FORCE=1"
     Then the output should contain "Dumping data and structure from database to db/dump"
@@ -25,8 +25,7 @@ Feature: Dump a database
     And the following files should exist:
       | db/dump/users/schema.rb |
       
-    When I successfully run "cat db/dump/users/**/*"
-    Then I can verify the content of the dump yml files
+    And the data in the dumped "users" yaml files should match the database contents
 
 
 
