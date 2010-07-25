@@ -6,23 +6,39 @@ Feature: Dump a database
     Given a Rakefile exists which has an environment task and loads git_friendly_dumper tasks
     And an empty database
     And the database has a "users" table (with timestamps):
-     | name (string) | surname (string) |
-     | Fred          | Bloggs           |
-     | Ethel         | Smith            |
-     | Jane          | Heidie           |
+      | name (string) | surname (string) |
+      | Fred          | Bloggs           |
+      | Ethel         | Smith            |
+      | Jane          | Heidie           |
+    And the database has a "schema_migrations" table:
+      | version (string) | 
+      | 01001010123      |
 
 
-
-  @announce
-  Scenario: rake db:dump
+  @announce @wip
+  Scenario: rake db:dump dumps all tables' contents and the schema
     When I successfully run "rake db:dump FORCE=1"
     Then the output should contain "Dumping data and structure from database to db/dump"
     And the following directories should exist:
-      | db/dump/users |
+      | db/dump/users             |
+      | db/dump/schema_migrations |
     And the following files should exist:
       | db/dump/users/schema.rb |
+      
     When I successfully run "cat db/dump/users/**/*"
     Then I can verify the content of the dump yml files
+
+
+
+  Scenario: rake db:data:dump dumps all tables' contents but does not dump the schema or migrations table
+    When I successfully run "rake db:data:dump FORCE=1"
+    Then the output should contain "Dumping data from database to db/dump"
+    And the following directories should exist:
+      | db/dump/users             |
+    But the following directories should not exist:
+      | db/dump/schema_migrations |
+    And the following files should not exist:
+      | db/dump/users/schema.rb |
 
 
 
