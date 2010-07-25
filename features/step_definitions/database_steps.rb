@@ -51,13 +51,22 @@ When /^I destroy record (\d+) from the "([^"]*)" table$/ do |id, table_name|
 end
 
 Then /^I can verify the content of the dump yml files$/ do
-  yml = YAML.parse File.open(File.join(current_dir, 'db/dump/users/0000/0001.yml'))
-  yml_hash = yml.transform
+  yml_hash = hash_from_yml read_fixture_yml('db/dump/users/0000/0001.yml')
   %w(updated_at created_at).each {|datetime| yml_hash[datetime] = DateTime.parse(yml_hash[datetime])}
-
   user_1 = class_for_table('users').find(1)
   user_1.attributes.should == yml_hash
 end
+
+module FixtureHelpers
+  def read_fixture_yml(filepath)
+    File.read File.join(current_dir, filepath)
+  end
+  
+  def hash_from_yml(yml)
+    YAML.parse(yml).transform
+  end
+end
+World(FixtureHelpers)
 
 module DatabaseHelpers
   def create_table(name)
