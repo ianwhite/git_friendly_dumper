@@ -110,6 +110,10 @@ Feature: Dump a database
   Scenario: invalid FIXTURES argument raises an error
     When I run "rake db:dump FORCE=1 FIXTURES=a_fixture.yml"
     Then the exit status should be 1
+    And the output should contain "GitFriendlyDumper if :fixtures option given, neither :include_schema, or :clobber_fixtures can be given"
+
+    When I run "rake db:data:dump FORCE=1 FIXTURES=a_fixture.yml"
+    Then the exit status should be 1
     And the output should contain "Cannot dump when :fixtures option is given"
 
 
