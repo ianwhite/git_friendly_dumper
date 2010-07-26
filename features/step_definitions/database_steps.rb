@@ -11,6 +11,22 @@ Given /^an empty database$/ do
   end
 end
 
+When /^I refresh the database tables cache$/ do
+  # prevents exception SQLite3::SchemaChangedException: no such table: users: SELECT * FROM "users"  (ActiveRecord::StatementInvalid)
+  ActiveRecord::Base.connection.tables 
+end
+
+Then /^list the table names$/ do
+  announce ActiveRecord::Base.connection.tables.to_sentence
+end
+
+Then /^show me the tables$/ do
+  ActiveRecord::Base.connection.tables.each do |table_name|
+    pp table_name
+    pp(table_contents(table_name))
+  end
+end
+
 Then /^show me the "([^"]*)" table$/ do |table_name|
   announce table_contents(table_name).to_yaml
 end
@@ -35,16 +51,12 @@ Given /^the database has a "([^"]*)" table( \(with timestamps\))?:$/ do |table_n
   end
 end
 
-Then /^the "([^"]*)" table should consist of:$/ do |table_name, table|
-  table.diff!(table_contents(table_name))
-end
-
 Then /^the "([^"]*)" table should match exactly:$/ do |table_name, table|
-  table.diff!(table_contents(table_name), :surplus_col => true)
+  table.diff! table_to_strings(table_contents(table_name)), :surplus_col => true
 end
 
-Then /^the "([^"]*)" table should match exactly \(ignoring ids and timestamps\):$/ do |table_name, table|
-  table.diff!(table_contents(table_name, :ids => false, :timestamps => false), :surplus_col => true)
+Then /^the "([^"]*)" table should match exactly \(ignoring (ids)?(?: and )?(timestamps)?\):$/ do |table_name, ids, timestamps, table|
+  table.diff! table_to_strings(table_contents(table_name, :ids => !ids, :timestamps => !timestamps)), :surplus_col => true
 end
 
 When /^I destroy record (\d+) from the "([^"]*)" table$/ do |id, table_name|
@@ -130,6 +142,15 @@ module DatabaseHelpers
     contents.tap do |contents|
       contents.map{|c| c.delete('id')} unless opts[:ids]
       contents.map{|c| c.delete('updated_at'); c.delete('created_at')} unless opts[:timestamps]
+    end
+  end
+  
+  #because cucumber table#diff! expects types to match and step transforms are silly
+  def table_to_strings(table)
+    table.each do |row|
+      row.each_pair do |key, value| 
+        row[key] = value.is_a?(Time) ? value.to_formatted_s(:db) : value.to_s
+      end
     end
   end
 end
