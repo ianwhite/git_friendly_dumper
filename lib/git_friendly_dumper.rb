@@ -32,7 +32,7 @@ class GitFriendlyDumper
     
     if options[:fixtures] && (options[:include_schema] || options[:clobber_fixtures])
       puts options.to_yaml
-      raise ArgumentError, "GitFriendlyDumper if :fixtures option given, neither :include_schema, or :clobber_fixtures can be given"
+      raise ArgumentError, "GitFriendlyDumper if :fixtures option given, neither :include_schema nor :clobber_fixtures can be given"
     end
     
     if options[:show_progress] && !defined?(ProgressBar)
