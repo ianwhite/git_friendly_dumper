@@ -16,6 +16,21 @@ When /^I refresh the database tables cache$/ do
   ActiveRecord::Base.connection.tables 
 end
 
+When /^I execute the schema "([^"]*)"$/ do |schema_path|
+  schema_definition = File.read(File.join(current_dir, schema_path))
+  ActiveRecord::Migration.suppress_messages do
+    ActiveRecord::Schema.define do
+      eval schema_definition
+    end
+  end
+end
+
+Then /^a "([^"]*)" table should exist with structure:$/ do |table_name, table|
+  # table is a Cucumber::Ast::Table
+  table.diff! ActiveRecord::Base.connection.table_structure(table_name)
+end
+
+
 Then /^list the table names$/ do
   announce ActiveRecord::Base.connection.tables.to_sentence
 end

@@ -50,7 +50,14 @@ Feature: populate database with data and stucture in a custom directory
     """
     When I successfully run "rake db:load FORCE=1 DUMP_PATH=db/alt/dump"
     And I refresh the database tables cache
-    Then the "users" table should match exactly:
+    Then a "users" table should exist with structure:
+      | name       | type         |
+      | id         | INTEGER      |
+      | created_at | datetime     |
+      | updated_at | datetime     |
+      | name       | varchar(255) |
+      | surname    | varchar(255) |
+    And the "users" table should match exactly:
     | id    | name  | surname | created_at          | updated_at          |
     | 1     | Fred  | Bloggs  | 2002-07-23 12:28:10 | 2004-07-22 12:18:14 |
 
