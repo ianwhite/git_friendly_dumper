@@ -12,7 +12,7 @@ Given /^an empty database$/ do
 end
 
 Then /^show me the "([^"]*)" table$/ do |table_name|
-  puts "<pre>#{table_contents(table_name, false).to_yaml}</pre>"
+  announce table_contents(table_name).to_yaml
 end
 
 Given /^the database has a "([^"]*)" table( \(with timestamps\))?:$/ do |table_name, timestamps, table|
