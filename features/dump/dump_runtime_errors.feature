@@ -27,12 +27,12 @@ Feature: Dump runtime errors
     Then the exit status should be <EXIT_STATUS>
     But the output should contain "dumping doesntexist failed: SQLite3::SQLException: no such table: doesntexist: SELECT COUNT(*) FROM doesntexist"
 
-    Scenarios: raise
+    Scenarios: don't raise
     | RAISE_ERROR | EXIT_STATUS |
     | false       | 0           |
     | 0           | 0           |
 
-    Scenarios: don't raise
+    Scenarios: raise
     | RAISE_ERROR | EXIT_STATUS |
     | true        | 1           |
     | 1           | 1           |
