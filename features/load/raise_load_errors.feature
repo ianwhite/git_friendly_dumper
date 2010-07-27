@@ -59,7 +59,7 @@ Feature: Raise load errors
     | 1           | 1           | should      |
 
 
-  @wip @announce
+  @announce
   Scenario Outline: can also silence errors loading a fixture
     Given a file named "db/dump/users/schema.rb" with:
     """
