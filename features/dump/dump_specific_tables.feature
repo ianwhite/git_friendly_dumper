@@ -19,10 +19,10 @@ Feature: Dump specific tables
 
   Scenario: dump specific tables
     Given the database has a "seen" table (with timestamps):
-     | bird (string) | seen (integer) |
-     | Parrot        | 1              |
-     | Robin         | 3              |
-     | Goldfinch     | 6              |
+      | bird (string) | seen (integer) |
+      | Parrot        | 1              |
+      | Robin         | 3              |
+      | Goldfinch     | 6              |
     Given the database has a "notes" table:
       | content (text)          |
       | Fred spotted a parrot?? |

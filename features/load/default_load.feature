@@ -81,9 +81,9 @@ Feature: Load a database
       | name       | varchar(255) |
       | surname    | varchar(255) |
     And the "users" table should match exactly:
-    | id    | name  | surname | created_at          | updated_at          |
-    | 1     | Jane  | Heidie  | 2003-07-26 12:38:10 | 2007-07-26 12:48:10 |
-    | 10008 | Ethel | Smith   | 2008-07-26 19:38:10 | 2010-03-22 11:38:10 |
+      | id    | name  | surname | created_at          | updated_at          |
+      | 1     | Jane  | Heidie  | 2003-07-26 12:38:10 | 2007-07-26 12:48:10 |
+      | 10008 | Ethel | Smith   | 2008-07-26 19:38:10 | 2010-03-22 11:38:10 |
 
     And a "debts" table should exist with structure:
       | name   | type         |
@@ -91,13 +91,13 @@ Feature: Load a database
       | name   | varchar(255) |
       | amount | integer      |
     And the "debts" table should match exactly:
-    | id | name        | amount |
-    | 12 | Jane Heidie | 3403   |
+      | id | name        | amount |
+      | 12 | Jane Heidie | 3403   |
 
     And a "schema_migrations" table should exist with structure:
       | name    | type         |
       | id      | INTEGER      |
       | version | varchar(255) |
     And the "schema_migrations" table should match exactly:
-    | id    | version      |
-    | 1     | 01001010123  |
+      | id    | version      |
+      | 1     | 01001010123  |

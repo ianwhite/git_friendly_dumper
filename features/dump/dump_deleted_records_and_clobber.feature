@@ -65,9 +65,9 @@ Feature: What happens to fixtures belonging to deleted records when I perform a 
 
   Scenario Outline: CLOBBER= removes all existing fixtures before dumping new ones, combining with TABLES= means only those tables' fixtures will exist
     Given the database has a "debts" table (with timestamps):
-     | name (string) | surname (string) |
-     | Fred          | Bloggs           |
-     | Ethel         | Smith            |
+      | name (string) | surname (string) |
+      | Fred          | Bloggs           |
+      | Ethel         | Smith            |
     When I run "rake db:dump FORCE=1"
     Then the following files should exist:
       | db/dump/users/0000/0001.yml |
