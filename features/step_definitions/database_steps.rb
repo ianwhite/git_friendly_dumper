@@ -6,7 +6,7 @@ Given /^an empty database$/ do
   require 'active_record'
   ActiveRecord::Base.default_timezone = :utc #rather than local, so the offsets in the DB make sense & are same as rails >(=?) 2.1
   ActiveRecord::Base.establish_connection(:adapter  => "sqlite3", :database => "#{current_dir}/test.sqlite3")
-  ActiveRecord::Base.connection.tables.each do |table|
+  db_table_names.each do |table|
     ActiveRecord::Base.connection.drop_table table
   end
 end
@@ -32,11 +32,19 @@ end
 
 
 Then /^list the table names$/ do
-  announce ActiveRecord::Base.connection.tables.to_sentence
+  announce db_table_names.to_sentence
+end
+
+Then /^the database should have tables:$/ do |table|
+  table.diff! db_table_names.map {|c| [c]}, :surplus_row => true, :surplus_col => true
+end
+
+Then /^the database should not have table "([^"]*)"$/ do |table_name|
+  db_table_names.should_not include(table_name)
 end
 
 Then /^show me the tables$/ do
-  ActiveRecord::Base.connection.tables.each do |table_name|
+  db_table_names.each do |table_name|
     pp table_name
     pp(table_contents(table_name))
   end
@@ -147,6 +155,11 @@ module DatabaseHelpers
 
   def insert_record_into_table(table_name, attrs)
     class_for_table(table_name).create! attrs
+  end
+
+  #returns ['table', 'names'] with sqlite adapter
+  def db_table_names
+    ActiveRecord::Base.connection.tables
   end
 
   # table_contents 'users' # gives back everything
