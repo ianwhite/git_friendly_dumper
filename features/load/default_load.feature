@@ -73,15 +73,31 @@ Feature: Load a database
 
     When I successfully run "rake db:load FORCE=1"
     And I refresh the database tables cache
-    Then the "users" table should match exactly:
+    Then a "users" table should exist with structure:
+      | name       | type         |
+      | id         | INTEGER      |
+      | created_at | datetime     |
+      | updated_at | datetime     |
+      | name       | varchar(255) |
+      | surname    | varchar(255) |
+    And the "users" table should match exactly:
     | id    | name  | surname | created_at          | updated_at          |
     | 1     | Jane  | Heidie  | 2003-07-26 12:38:10 | 2007-07-26 12:48:10 |
     | 10008 | Ethel | Smith   | 2008-07-26 19:38:10 | 2010-03-22 11:38:10 |
 
+    And a "debts" table should exist with structure:
+      | name   | type         |
+      | id     | INTEGER      |
+      | name   | varchar(255) |
+      | amount | integer      |
     And the "debts" table should match exactly:
     | id | name        | amount |
     | 12 | Jane Heidie | 3403   |
 
+    And a "schema_migrations" table should exist with structure:
+      | name    | type         |
+      | id      | INTEGER      |
+      | version | varchar(255) |
     And the "schema_migrations" table should match exactly:
     | id    | version      |
     | 1     | 01001010123  |
