@@ -31,7 +31,6 @@ class GitFriendlyDumper
     self.root = options[:root] || (defined?(Rails) && Rails.root) || pwd
     
     if options[:fixtures] && (options[:include_schema] || options[:clobber_fixtures])
-      puts options.to_yaml
       raise ArgumentError, "GitFriendlyDumper if :fixtures option given, neither :include_schema nor :clobber_fixtures can be given"
     end
     
@@ -131,6 +130,7 @@ private
         fixture
       end
     end
+    fixtures.compact!
   
     self.tables = fixtures_tables
   

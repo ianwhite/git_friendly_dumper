@@ -97,10 +97,27 @@ Feature: Load fixtures
 
 
   Scenario: TABLES can be used whitelist a subset of the FIXTURES to operate on
-    Given an empty database
-    And some User fixtures
-    And some Notes fixtures
+    Given the database has a "notes" table:
+      | body (string) |
+      | Get milk      |
+      | Buy Meat      |
+    And a file named "db/dump/notes/0000/0001.yml" with:
+    """
+    --- 
+    body: Get cheese
+    id: 1
+    """
     
+    When I successfully run "rake db:data:load TABLES=notes FIXTURES=notes/0000/0001.yml,users/0000/0001.yml,users/0000/0003.yml,users/0000/0011.yml FORCE=true"
+    Then the "notes" table should match exactly:
+      | id | body       |
+      | 1  | Get cheese |
+      | 2  | Buy Meat   |
+    And the "users" table should match exactly:
+      | id | name  | surname |
+      | 1  | Fred  | Bloggs  |
+      | 2  | Ethel | Smith   |
+      | 3  | Jane  | Heidie  |
     
     
   
