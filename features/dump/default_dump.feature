@@ -1,3 +1,5 @@
+# TODO: replace FORCE=true with INTERACTIVE=false
+
 Feature: Default dump
   In order to produce incremental backups of my database using git
   I want to backup my database in a form git can play nicely with
