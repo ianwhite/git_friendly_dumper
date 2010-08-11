@@ -13,6 +13,7 @@ end
 
 When /^I refresh the database tables cache$/ do
   # prevents exception SQLite3::SchemaChangedException: no such table: users: SELECT * FROM "users"  (ActiveRecord::StatementInvalid)
+  # TODO: is there a public API for this?
   ActiveRecord::Base.connection.tables 
 end
 
