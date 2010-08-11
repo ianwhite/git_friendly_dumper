@@ -1,6 +1,8 @@
 require 'fileutils'
+require 'active_record'
 require 'active_support/all'
 require 'active_record/fixtures'
+
 
 begin; require 'progressbar'; rescue MissingSourceFile; end
 
