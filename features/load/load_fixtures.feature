@@ -42,6 +42,11 @@ Feature: Load fixtures
     When I run "rake db:data:load INCLUDE_SCHEMA=true FIXTURES=notes/0000/0001.yml FORCE=true"
     Then the exit status should be 1
 
+
+  Scenario: trying to load with FIXTURES and FIXTURES_FILE should raise an error
+    When I run "rake db:data:load FIXTURES_FILE=foo FIXTURES=notes/0000/0001.yml FORCE=true"
+    Then the exit status should be 1
+
   
   Scenario: loading specific fixtures into an existing table with records only replaces the ones I specify
     When I successfully run "rake db:data:load FIXTURES=users/0000/0001.yml FORCE=true"

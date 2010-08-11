@@ -26,9 +26,14 @@ class GitFriendlyDumper
   end
   
   def initialize(options = {})
-    options.assert_valid_keys(:root, :path, :connection, :connection_name, :tables, :force, :include_schema, :show_progress, :clobber_fixtures, :limit, :raise_error, :fixtures)
+    options.assert_valid_keys(:root, :path, :connection, :connection_name, :tables, :force, :include_schema, :show_progress, :clobber_fixtures, :limit, :raise_error, :fixtures, :fixtures_file)
 
     self.root = options[:root] || (defined?(Rails) && Rails.root) || pwd
+    
+    if options[:fixtures_file]
+      raise ArgumentError, "GitFriendlyDumper cannot specify both :fixtures and :fixtures_file" if options[:fixtures].present?
+      options[:fixtures] = File.read(options[:fixtures_file]).split("\n").map(&:squish).reject(&:blank?)
+    end
     
     if options[:fixtures] && (options[:include_schema] || options[:clobber_fixtures])
       raise ArgumentError, "GitFriendlyDumper if :fixtures option given, neither :include_schema nor :clobber_fixtures can be given"

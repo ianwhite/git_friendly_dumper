@@ -7,6 +7,7 @@
 #  CLOBBER=false|0        clobber fixtures on dump  (default true)
 #  RAISE_ERROR=false|0    silence runtime errors    (default true)
 #  FIXTURES=comma,sep,list specific fixture files to load, invalid argument for dump tasks, should be relative filenames e.g. users/0000/0001.yml
+#  FIXTURES_FILE=filename of newline separated list of fixtures to load (use instead of FIXTURES option)
 require 'git_friendly_dumper'
 
 namespace :db do
@@ -42,7 +43,8 @@ namespace :db do
       :clobber_fixtures => ['1', 'true'].include?(ENV['CLOBBER']) ? true : false,
       :limit            => ENV['LIMIT'] || 2500,
       :raise_error      => ['0', 'false'].include?(ENV['RAISE_ERROR']) ? false : true,
-      :fixtures         => ENV['FIXTURES'] && ENV['FIXTURES'].split(',')
+      :fixtures         => ENV['FIXTURES'] && ENV['FIXTURES'].split(','),
+      :fixtures_file    => ENV['FIXTURES_FILE']
     }
   end
 end
