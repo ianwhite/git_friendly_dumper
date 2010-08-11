@@ -91,40 +91,33 @@ Then /^the data in the dumped "([^"]*)" yaml files should match the database con
   records = class_for_table(table_name).all
   fixtures = fixtures_for_table(table_name)
   records.count.should == fixtures.length
-  records.each {|record| match_fixture_file_against_record(record, table_name)}
+  records.each {|record| match_fixture_file_against_record(record)}
 end
 
 module FixtureHelpers
-  def read_fixture_yml(filepath)
-    yml = File.read filepath
-    announce "#{filepath} YAML:\n" << yml if @announce
-    yml
+  def fixture_path_for(record)
+    fixture_id_path = ("%08d" % record.id).scan(/..../).join('/')
+    File.join current_dir, "db/dump", record.class.table_name, "#{fixture_id_path}.yml"
   end
 
-  def fixture_path_for(record, table_name)
-    fixture_id_path = ("%08d" % record.id).scan(/..../).join('/')
-    File.join current_dir, "db/dump", table_name, "#{fixture_id_path}.yml"
+  def replace_record_with_fixture!(record)
+    require 'active_record/fixtures'
+    fixture_path =fixture_path_for(record)
+    fixture = Fixture.new(YAML.load(File.read(fixture_path)), record.class)
+    record.destroy
+    ActiveRecord::Base.connection.insert_fixture fixture, record.class.table_name
+    record.class.find(record.id)
   end
   
-  def hash_from_yml(yml)
-    YAML.parse(yml).transform
-  end
-
-  def match_fixture_file_against_record(record, table_name)
-    yml_hash = hash_from_yml read_fixture_yml(fixture_path_for(record, table_name))
-    convert_hash_timestamp_strings_to_datetimes! yml_hash
-    record.attributes.should == yml_hash
-    announce "#{table_name.singularize} #{record.id} data matches its fixture data #{fixture_path_for(record, table_name)}" if @announce
+  def match_fixture_file_against_record(record)
+    record.attributes.dup.should == replace_record_with_fixture!(record).attributes
+    announce "#{table_name.singularize} #{record.id} data matches its fixture data #{fixture_path_for(record)}" if @announce
   end
   
   def fixtures_for_table(table_name)
     fixtures = Dir.glob File.join(current_dir, "db/dump", table_name, '**', '*.yml')
     announce "Fixtures for #{table_name}:\n#{fixtures.join("\n")}\n" if @announce
     fixtures
-  end
-  
-  def convert_hash_timestamp_strings_to_datetimes!(hash)
-    %w(updated_at created_at).each {|datetime| hash[datetime] = DateTime.parse(hash[datetime])}
   end
 end
 World(FixtureHelpers)
