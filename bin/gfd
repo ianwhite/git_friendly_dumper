@@ -1,0 +1,8 @@
+#!/usr/bin/env ruby
+require "rubygems"
+
+gfd_path = File.expand_path('../../lib', __FILE__)
+$:.unshift(gfd_path)
+require "git_friendly_dumper/cli"
+
+GitFriendlyDumper::Cli.start
