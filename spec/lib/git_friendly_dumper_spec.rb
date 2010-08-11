@@ -202,6 +202,32 @@ module GitFriendlyDumperSpec
           end
         end
       end
+      
+      
+      describe "dumping when RAISE_ERROR=false" do
+        let(:dumper) {GitFriendlyDumper.new(:include_schema => true, :raise_error => false, :path => @path)}
+        subject{ dumper }
+
+        describe "when #dump_records raises a runtime error" do
+          before(:each) do
+            dumper.should_receive(:dump_records).and_raise(RuntimeError)
+          end
+          
+          it "#dump should raise a runtime error" do
+            lambda { dumper.dump }.should raise_error(RuntimeError)                  
+          end
+        end
+        
+        describe "when #dump_records raises an ActiveRecord::Error" do
+          before(:each) do
+            dumper.should_receive(:dump_records).at_least(1).times.and_raise(ActiveRecord::ActiveRecordError)
+          end
+          
+          it "#dump should not raise a runtime error" do
+            lambda { dumper.dump }.should_not raise_error
+          end
+        end
+      end
     end
   
     describe "when fixtures exist" do
@@ -261,8 +287,34 @@ module GitFriendlyDumperSpec
           
           it_should_behave_like "when db data exists"
         end
+      end
+      
+      
+      
+      
+      describe "loading when RAISE_ERROR=false" do
+        let(:dumper) {GitFriendlyDumper.new(:include_schema => true, :raise_error => false, :path => @path)}
+        subject{ dumper }
+
+        describe "when connection raises a runtime error" do
+          before(:each) do
+            dumper.connection.should_receive(:insert_fixture).and_raise(RuntimeError)
+          end
+          
+          it "#load should raise a runtime error" do
+            lambda { dumper.load }.should raise_error(RuntimeError)                  
+          end
+        end
         
-        
+        describe "when connection raises an ActiveRecord::Error" do
+          before(:each) do
+            dumper.connection.should_receive(:insert_fixture).at_least(1).times.and_raise(ActiveRecord::ActiveRecordError)
+          end
+          
+          it "#load should not raise a runtime error" do
+            lambda { dumper.load }.should_not raise_error
+          end
+        end
       end
     end
   end
