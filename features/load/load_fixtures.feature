@@ -99,6 +99,29 @@ Feature: Load fixtures
       | 11 | Bob   | Smith   |
 
 
+  Scenario: specifying fixtures via a fixtures_file
+    Given a file named "db/dump/users/0000/0011.yml" with:
+    """
+    --- 
+    name: Bob
+    id: 11
+    surname: Smith
+    """
+    
+    And a file named "db/dump/fixtures" with:
+    """
+    users/0000/0001.yml
+    users/0000/0003.yml
+    users/0000/0011.yml
+    """
+    
+    When I successfully run "rake db:data:load FIXTURES_FILE=db/dump/fixtures FORCE=true"
+    Then the "users" table should match exactly:
+      | id | name  | surname |
+      | 1  | Frodo | Bloggo  |
+      | 2  | Ethel | Smith   |
+      | 11 | Bob   | Smith   |
+
 
   Scenario: TABLES can be used whitelist a subset of the FIXTURES to operate on
     Given the database has a "notes" table:
