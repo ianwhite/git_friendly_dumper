@@ -1,11 +1,11 @@
-Feature: Raise load errors
-  RAISE_ERROR=false|0    silence runtime errors    (default true)
+Feature: Toggle halting load when runtime errors occur
+  RAISE_ERROR=false|0    toggle halt on runtime errors    (default true)
+  Useful for loading dev databases - don't use in production!
 
   Background:
     Given I am in an empty app
     Given a Rakefile exists which has an environment task and loads git_friendly_dumper tasks
     And an empty database
-
 
 
   Scenario Outline: if a schema isn't found it always blows up, ignoring RAISE_ERROR

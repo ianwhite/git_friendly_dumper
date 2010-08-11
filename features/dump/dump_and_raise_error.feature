@@ -1,4 +1,4 @@
-Feature: Dump runtime errors
+Feature: Toggle halting dump when runtime errors occur
 
   Background:
     Given I am in an empty app
