@@ -124,4 +124,5 @@ Feature: Load fixtures
       | 3  | Jane  | Heidie  |  
   
   
+  Scenario: FIXTURES should be able to be specified as a file, instead of an env var
   
