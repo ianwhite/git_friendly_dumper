@@ -36,7 +36,11 @@ Feature: Load fixtures
       | 1  | Fred  | Bloggs  |
       | 2  | Ethel | Smith   |
       | 3  | Jane  | Heidie  |
-    
+
+
+  Scenario: trying to load fixtures with :include_schema should raise an error
+    When I run "rake db:data:load INCLUDE_SCHEMA=true FIXTURES=notes/0000/0001.yml FORCE=true"
+    Then the exit status should be 1
 
   
   Scenario: loading specific fixtures into an existing table with records only replaces the ones I specify
@@ -117,13 +121,7 @@ Feature: Load fixtures
       | id | name  | surname |
       | 1  | Fred  | Bloggs  |
       | 2  | Ethel | Smith   |
-      | 3  | Jane  | Heidie  |
-    
-    
-  
-  Scenario: trying to load fixtures with :include_schema should raise an error
-    When I run
-  
+      | 3  | Jane  | Heidie  |  
   
   
   
