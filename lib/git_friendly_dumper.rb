@@ -125,7 +125,7 @@ private
       table = fixture.split('/').first
       if (!tables || tables.include?(table))
         unless fixtures_tables.include?(table)
-          klass = eval "class #{table.classify} < ActiveRecord::Base; end"
+          eval "class ::#{table.classify} < ActiveRecord::Base; end"
           fixtures_tables << table
         end
         fixture
