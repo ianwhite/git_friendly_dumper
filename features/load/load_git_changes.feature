@@ -1,9 +1,7 @@
 Feature: Figure out git changes since last load
   In order to speed up loading, when using a git based dump
   I want to be able to load fixtures changes since last load
-
-  Scenario: rake db:data:load FIXTURES_FILE=filename loads fixtures in file
-  
+ 
   Scenario: rake db:data:load SINCE_REF=<git ref> loads fixtures since then
 
   Scenario: rake db:data:load SINCE_REF=<git ref> borks if DUMP_PATH aint a git repo
