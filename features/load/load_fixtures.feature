@@ -36,16 +36,19 @@ Feature: Load fixtures
       | 1  | Fred  | Bloggs  |
       | 2  | Ethel | Smith   |
       | 3  | Jane  | Heidie  |
-
-
-  Scenario: trying to load fixtures with :include_schema should raise an error
-    When I run "rake db:data:load INCLUDE_SCHEMA=true FIXTURES=notes/0000/0001.yml FORCE=true"
+    And the output should contain "if :fixtures option given, neither :include_schema nor :clobber_fixtures"
+  
+  
+  Scenario: can't use rake db:data:load FIXTURES=… CLOBBER_FIXTURES=true
+    When I run "rake db:load FIXTURES=users/0000/0001.yml CLOBBER_FIXTURES=true FORCE=true"
     Then the exit status should be 1
+    And the output should contain "if :fixtures option given, neither :include_schema nor :clobber_fixtures"
 
 
   Scenario: trying to load with FIXTURES and FIXTURES_FILE should raise an error
     When I run "rake db:data:load FIXTURES_FILE=foo FIXTURES=notes/0000/0001.yml FORCE=true"
     Then the exit status should be 1
+    And the output should contain "GitFriendlyDumper cannot specify both :fixtures and :fixtures_file"
 
   
   Scenario: loading specific fixtures into an existing table with records only replaces the ones I specify
