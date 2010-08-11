@@ -4,6 +4,7 @@ Given /I am in an empty app/ do
     Given I cd to "app"
   }
   in_current_dir { `ln -s ../../../lib lib` }
+  in_current_dir { `ln -s ../../../bin bin` }
 end
 
 Given /a Rakefile exists which has an environment task and loads git_friendly_dumper tasks/ do
