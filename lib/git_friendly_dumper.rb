@@ -129,7 +129,11 @@ private
       table = fixture.split('/').first
       if (!tables || tables.include?(table))
         unless fixtures_tables.include?(table)
-          eval "class ::#{table.classify} < ActiveRecord::Base; end"
+          begin
+            "::#{table.classify}".constantize
+          rescue NameError
+            eval "class ::#{table.classify} < ActiveRecord::Base; end"
+          end
           fixtures_tables << table
         end
         fixture
