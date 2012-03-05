@@ -30,18 +30,18 @@ Feature: CLOBBER is ignored when loading
     """
     --- 
     name: Ethel
-    created_at: 2008-07-26 19:38:10
-    updated_at: 2010-03-22 11:38:10
+    created_at: 2003-07-26 10:38:10
+    updated_at: 2007-07-26 10:48:10
     id: 2
     surname: Smith
     """
 
-    When I successfully run "rake db:load FORCE=1 CLOBBER=true"
+    When I successfully run `rake db:load FORCE=1 CLOBBER=true`
     And I refresh the database tables cache
     And the "users" table should match exactly:
     | id    | name  | surname | created_at          | updated_at          |
     | 1     | Jane  | Heidie  | 2003-07-26 12:38:10 | 2007-07-26 12:48:10 |
-    | 2     | Ethel | Smith   | 2008-07-26 19:38:10 | 2010-03-22 11:38:10 |
+    | 2     | Ethel | Smith   | 2003-07-26 10:38:10 | 2007-07-26 10:48:10 |
 
     But the following files should exist:
       | db/dump/users/schema.rb     |

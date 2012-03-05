@@ -22,14 +22,14 @@ Feature: What happens to fixtures belonging to deleted records when I perform a 
 
 
   Scenario: fixtures belonging to deleted records are deleted and not recreated
-    When I run "rake db:dump FORCE=1"
+    When I run `rake db:dump FORCE=1`
     Then the following files should exist:
       | db/dump/users/0000/0001.yml |
       | db/dump/users/0000/0002.yml |
       | db/dump/users/0000/0003.yml |
 
     When I destroy record 1 from the "users" table
-    And I run "rake db:dump FORCE=1"
+    And I run `rake db:dump FORCE=1`
     Then the following files should exist:
       | db/dump/users/0000/0002.yml |
       | db/dump/users/0000/0003.yml |
@@ -44,7 +44,7 @@ Feature: What happens to fixtures belonging to deleted records when I perform a 
      | Fred          | Bloggs           |
      | Ethel         | Smith            |
 
-    When I run "rake db:dump FORCE=1"
+    When I run `rake db:dump FORCE=1`
     Then the following files should exist:
       | db/dump/users/0000/0001.yml |
       | db/dump/users/0000/0002.yml |
@@ -53,7 +53,7 @@ Feature: What happens to fixtures belonging to deleted records when I perform a 
       | db/dump/debts/0000/0002.yml |
 
     When I destroy record 1 from the "debts" table
-    And I run "rake db:dump FORCE=1 TABLES=users"
+    And I run `rake db:dump FORCE=1 TABLES=users`
     Then the following files should exist:
       | db/dump/users/0000/0001.yml |
       | db/dump/users/0000/0002.yml |
@@ -68,7 +68,7 @@ Feature: What happens to fixtures belonging to deleted records when I perform a 
       | name (string) | surname (string) |
       | Fred          | Bloggs           |
       | Ethel         | Smith            |
-    When I run "rake db:dump FORCE=1"
+    When I run `rake db:dump FORCE=1`
     Then the following files should exist:
       | db/dump/users/0000/0001.yml |
       | db/dump/users/0000/0002.yml |
@@ -77,7 +77,7 @@ Feature: What happens to fixtures belonging to deleted records when I perform a 
       | db/dump/debts/0000/0002.yml |
 
     When I destroy record 1 from the "users" table
-    And I run "rake db:dump FORCE=1 TABLES=users CLOBBER=<CLOBBER>"
+    And I run `rake db:dump FORCE=1 TABLES=users CLOBBER=<CLOBBER>`
     Then the following files should exist:
       | db/dump/users/0000/0002.yml |
       | db/dump/users/0000/0003.yml |

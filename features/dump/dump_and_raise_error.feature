@@ -16,14 +16,14 @@ Feature: Toggle halting dump when runtime errors occur
 
 
   Scenario: by default runtime errors are raised
-    When I run "rake db:dump FORCE=1 TABLES=doesntexist"
+    When I run `rake db:dump FORCE=1 TABLES=doesntexist`
     Then the exit status should be 1
     And the output should contain "dumping doesntexist failed: SQLite3::SQLException: no such table: doesntexist: SELECT COUNT(*) FROM doesntexist"
 
 
 
   Scenario Outline: RAISE_ERROR= toggles silence or raise runtime errors
-    When I run "rake db:dump FORCE=1 TABLES=doesntexist RAISE_ERROR=<RAISE_ERROR>"
+    When I run `rake db:dump FORCE=1 TABLES=doesntexist RAISE_ERROR=<RAISE_ERROR>`
     Then the exit status should be <EXIT_STATUS>
     But the output should contain "dumping doesntexist failed: SQLite3::SQLException: no such table: doesntexist: SELECT COUNT(*) FROM doesntexist"
 
@@ -40,7 +40,7 @@ Feature: Toggle halting dump when runtime errors occur
 
 
   Scenario: dirty directory warning on failed dump
-    When I run "rake db:dump FORCE=1 TABLES=doesntexist"
+    When I run `rake db:dump FORCE=1 TABLES=doesntexist`
     Then the exit status should be 1
     And the following directories should exist:
       | db/dump/doesntexist     |
@@ -49,10 +49,10 @@ Feature: Toggle halting dump when runtime errors occur
 
 
   Scenario: invalid FIXTURES argument raises an error
-    When I run "rake db:dump FORCE=1 FIXTURES=a_fixture.yml"
+    When I run `rake db:dump FORCE=1 FIXTURES=a_fixture.yml`
     Then the exit status should be 1
     And the output should contain "GitFriendlyDumper if :fixtures option given, neither :include_schema nor :clobber_fixtures can be given"
 
-    When I run "rake db:data:dump FORCE=1 FIXTURES=a_fixture.yml"
+    When I run `rake db:data:dump FORCE=1 FIXTURES=a_fixture.yml`
     Then the exit status should be 1
     And the output should contain "Cannot dump when :fixtures option is given"

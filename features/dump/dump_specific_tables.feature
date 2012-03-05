@@ -27,7 +27,7 @@ Feature: Dump specific tables
       | content (text)          |
       | Fred spotted a parrot?? |
 
-    When I successfully run "rake db:dump FORCE=1 TABLES=seen,users"
+    When I successfully run `rake db:dump FORCE=1 TABLES=seen,users`
     Then the output should contain "Dumping data and structure from database to db/dump"
     And the following directories should exist:
       | db/dump/users |

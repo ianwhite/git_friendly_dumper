@@ -71,7 +71,7 @@ Feature: Load a database
     
     """
 
-    When I successfully run "rake db:load FORCE=1"
+    When I successfully run `rake db:load FORCE=1`
     And I refresh the database tables cache
     Then a "users" table should exist with structure:
       | name       | type         |

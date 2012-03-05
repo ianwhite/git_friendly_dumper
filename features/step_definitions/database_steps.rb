@@ -3,8 +3,6 @@ Given /^there is a connection$/ do
 end
 
 Given /^an empty database$/ do
-  require 'active_record'
-  ActiveRecord::Base.default_timezone = :utc #rather than local, so the offsets in the DB make sense & are same as rails >(=?) 2.1
   ActiveRecord::Base.establish_connection(:adapter  => "sqlite3", :database => "#{current_dir}/test.sqlite3")
   db_table_names.each do |table|
     ActiveRecord::Base.connection.drop_table table
@@ -17,7 +15,7 @@ When /^I refresh the database tables cache$/ do
   ActiveRecord::Base.connection.tables 
 end
 
-When /^I execute the schema "([^"]*)"$/ do |schema_path|
+When(/^I execute the schema "([^"]*)"$/) do |schema_path|
   schema_definition = File.read(File.join(current_dir, schema_path))
   ActiveRecord::Migration.suppress_messages do
     ActiveRecord::Schema.define do
@@ -26,21 +24,21 @@ When /^I execute the schema "([^"]*)"$/ do |schema_path|
   end
 end
 
-Then /^a "([^"]*)" table should exist with structure:$/ do |table_name, table|
+Then(/^a "([^"]*)" table should exist with structure:$/) do |table_name, table|
   # table is a Cucumber::Ast::Table
-  table.diff! ActiveRecord::Base.connection.table_structure(table_name)
+  # TODO: make this db independent, currenlty for sqlite3 only
+  table.diff! ActiveRecord::Base.connection.send :table_structure, table_name
 end
-
 
 Then /^list the table names$/ do
   announce db_table_names.to_sentence
 end
 
-Then /^the database should have tables:$/ do |table|
+Then(/^the database should have tables:$/) do |table|
   table.diff! db_table_names.map {|c| [c]}, :surplus_row => true, :surplus_col => true
 end
 
-Then /^the database should not have table "([^"]*)"$/ do |table_name|
+Then(/^the database should not have table "([^"]*)"$/) do |table_name|
   db_table_names.should_not include(table_name)
 end
 
@@ -56,8 +54,7 @@ Then /^show me the "([^"]*)" table$/ do |table_name|
 end
 
 Given /^the database has a "([^"]*)" table( \(with timestamps\))?:$/ do |table_name, timestamps, table|
-  create_table(table_name)
-  add_timestamps_to_table(table_name) if timestamps
+  create_table(table_name, timestamps)
   
   columns = []
   table.headers.each do |column_def|
@@ -103,7 +100,7 @@ module FixtureHelpers
   def replace_record_with_fixture!(record)
     require 'active_record/fixtures'
     fixture_path =fixture_path_for(record)
-    fixture = Fixture.new(YAML.load(File.read(fixture_path)), record.class)
+    fixture = ActiveRecord::Fixture.new(YAML.load(File.read(fixture_path)), record.class)
     record.destroy
     ActiveRecord::Base.connection.insert_fixture fixture, record.class.table_name
     record.class.find(record.id)
@@ -123,14 +120,9 @@ end
 World(FixtureHelpers)
 
 module DatabaseHelpers
-  def create_table(name)
-    ActiveRecord::Base.connection.create_table name do
-    end
-  end
-
-  def add_timestamps_to_table(name)
-    ActiveRecord::Base.connection.change_table name do |t|
-      t.timestamps
+  def create_table(name, timestamps = false)
+    ActiveRecord::Base.connection.create_table name do |t|
+      t.timestamps if timestamps
     end
   end
 
@@ -171,7 +163,7 @@ module DatabaseHelpers
   def table_to_strings(table)
     table.each do |row|
       row.each_pair do |key, value| 
-        row[key] = value.is_a?(Time) ? value.to_formatted_s(:db) : value.to_s
+        row[key] = value.is_a?(Time) ? value.utc.to_s(:db) : value.to_s
       end
     end
   end

@@ -18,7 +18,7 @@ Feature: Default dump
 
 
   Scenario: rake db:dump dumps all tables' contents and the schema
-    When I successfully run "rake db:dump FORCE=1"
+    When I successfully run `rake db:dump FORCE=1`
     Then the output should contain "Dumping data and structure from database to db/dump"
     And the following directories should exist:
       | db/dump/users             |

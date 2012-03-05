@@ -12,8 +12,9 @@ Given /a Rakefile exists which has an environment task and loads git_friendly_du
     """
     $LOAD_PATH.unshift("lib")
     require 'rake'
+    require 'active_record'
     
-    load "lib/tasks/db.rake"
+    load "lib/tasks/git_friendly_dumper_tasks.rake"
     
     task :environment do
       require 'active_record'

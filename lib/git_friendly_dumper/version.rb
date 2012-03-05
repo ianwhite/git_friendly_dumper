@@ -1,3 +1,3 @@
-module GitFriendlyDumper
+class GitFriendlyDumper
   VERSION = "0.0.1"
 end

@@ -1,1 +1,7 @@
+* 0.0.1
+
+	
+
+* Improvements made while using for http://www.distinctivedoors.co.uk, (Ian White & Nick Rutherford)
+
 * Initial release

@@ -74,7 +74,7 @@ Feature: Load specific tables
 
 
     Scenario: load the debts table only
-      When I successfully run "rake db:load FORCE=1 TABLES=debts"
+      When I successfully run `rake db:load FORCE=1 TABLES=debts`
       Then the database should have tables:
         | debts |
       But the database should not have table "users"
@@ -91,7 +91,7 @@ Feature: Load specific tables
 
 
     Scenario: load the users and debts tables
-      When I successfully run "rake db:load FORCE=1 TABLES=debts,users"
+      When I successfully run `rake db:load FORCE=1 TABLES=debts,users`
       Then the database should have tables:
         | debts |
         | users |

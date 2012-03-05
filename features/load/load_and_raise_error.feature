@@ -9,7 +9,7 @@ Feature: Toggle halting load when runtime errors occur
 
 
   Scenario Outline: if a schema isn't found it always blows up, ignoring RAISE_ERROR
-    When I run "rake db:load FORCE=1 TABLES=doesnotexist RAISE_ERROR=<RAISE_ERROR>"
+    When I run `rake db:load FORCE=1 TABLES=doesnotexist RAISE_ERROR=<RAISE_ERROR>`
     Then the exit status should be <EXIT_STATUS>
     And the output should contain "No such file or directory"
 
@@ -43,7 +43,7 @@ Feature: Toggle halting load when runtime errors occur
     surname: Heidie
     """
 
-    When I run "rake db:load FORCE=1 TABLES=users RAISE_ERROR=<RAISE_ERROR>"
+    When I run `rake db:load FORCE=1 TABLES=users RAISE_ERROR=<RAISE_ERROR>`
     Then the exit status should be <EXIT_STATUS>
     And the output <SEE_MESSAGE> contain "SQLite3::SQLException: table users has no column named name:"
 
@@ -68,7 +68,7 @@ Feature: Toggle halting load when runtime errors occur
       t.string   "surname"
     end
     """
-    And I successfully run "rake db:load FORCE=1"
+    And I successfully run `rake db:load FORCE=1`
 
     When I write to "db/dump/users/0000/0001.yml" with:
     """
@@ -79,7 +79,7 @@ Feature: Toggle halting load when runtime errors occur
     id: 1
     surname: Heidie
     """
-    And I run "rake db:data:load FORCE=1 FIXTURES='users/0000/0001.yml' RAISE_ERROR=<RAISE_ERROR>"
+    And I run `rake db:data:load FORCE=1 FIXTURES='users/0000/0001.yml' RAISE_ERROR=<RAISE_ERROR>`
     Then the exit status should be <EXIT_STATUS>
     And the output <SEE_MESSAGE> contain "SQLite3::SQLException: table users has no column named forename:"
 

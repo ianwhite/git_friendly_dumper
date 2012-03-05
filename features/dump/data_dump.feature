@@ -17,7 +17,7 @@ Feature: Data dump
 
 
   Scenario: rake db:data:dump dumps all tables' contents but does not dump the schema or migrations table
-    When I successfully run "rake db:data:dump FORCE=1"
+    When I successfully run `rake db:data:dump FORCE=1`
     Then the output should contain "Dumping data from database to db/dump"
     And the following directories should exist:
       | db/dump/users             |

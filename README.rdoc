@@ -37,7 +37,4 @@ containing many binary columns, this resulted in a massive saving in bandwidth.
 Basically, we have the db backup inside the app, but ignored by the main app, the db/dump
 has it's own git repo.
 
-== CI
-
-It's tested against master (2.3) and 2-2-stable branches
     

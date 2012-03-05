@@ -18,7 +18,7 @@ Feature: Change dump path
 
 
   Scenario: change dump path
-    When I successfully run "rake db:dump FORCE=1 DUMP_PATH=db/override"
+    When I successfully run `rake db:dump FORCE=1 DUMP_PATH=db/override`
     Then the output should contain "Dumping data and structure from database to db/override"
     And the following directories should exist:
       | db/override/users |

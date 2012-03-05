@@ -48,7 +48,7 @@ Feature: populate database with data and stucture in a custom directory
     surname: Bloggs
     
     """
-    When I successfully run "rake db:load FORCE=1 DUMP_PATH=db/alt/dump"
+    When I successfully run `rake db:load FORCE=1 DUMP_PATH=db/alt/dump`
     And I refresh the database tables cache
     Then a "users" table should exist with structure:
       | name       | type         |
