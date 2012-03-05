@@ -1,4 +1,4 @@
-require 'spec/rake/spectask'
+require 'rspec/core/rake_task'
 
 task :default => [:spec]
 
@@ -8,7 +8,6 @@ file "tmp/db" do
 end
 
 desc "Run the specs"
-Spec::Rake::SpecTask.new(:spec => ['tmp/db']) do |t|
-  t.spec_files = FileList['spec/**/*_spec.rb']
-  t.spec_opts  = ["--colour"]
+RSpec::Core::RakeTask.new(:spec => ['tmp/db']) do |t|
+  t.pattern = "./spec/**/*_spec.rb"
 end

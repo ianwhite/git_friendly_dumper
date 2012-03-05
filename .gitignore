@@ -1,2 +1,5 @@
-doc
-tmp
+.bundle/
+log/*.log
+pkg/
+tmp/
+.rvmrc

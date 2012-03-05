@@ -1,5 +1,4 @@
-require File.expand_path(File.join(File.dirname(__FILE__), '../spec_helper'))
-require 'git_friendly_dumper'
+require 'spec_helper'
 
 module GitFriendlyDumperSpec
   include FileUtils
@@ -20,7 +19,7 @@ module GitFriendlyDumperSpec
 
   def migrate_up(version)
     ActiveRecord::Migration.suppress_messages do
-      ActiveRecord::Migrator.migrate(File.join(File.dirname(__FILE__), '../resources/migrate'), version)
+      ActiveRecord::Migrator.migrate ['spec/resources/migrate'], version
     end
   end
   
@@ -32,8 +31,10 @@ module GitFriendlyDumperSpec
     Dir["#{path}/**/*"].map{|f| f.sub("#{path}/", '')}.to_set
   end
   
-  def random_string
-    (10..rand(100)+20).inject(''){|s,i| s << (rand(26) + 'a'[0]).chr }
+  def next_string
+    @next ||= 0
+    @next += 1
+    ['Foo', 'Bar', 'Baz'][rand(3)] + ("%04d" % @next)
   end
   
   def connection
@@ -71,24 +72,24 @@ module GitFriendlyDumperSpec
     describe "when db data exists" do
       before do
         migrate_up(20070101010000)
-        First.create!(:name => random_string)
-        First.create!(:name => random_string)
-        Second.create!(:name => random_string)
-        Second.create!(:name => random_string)
+        First.create!(:name => next_string)
+        First.create!(:name => next_string)
+        Second.create!(:name => next_string)
+        Second.create!(:name => next_string)
       end
   
       it "connection should have tables == ['firsts', 'seconds', 'schema_migrations']" do
         ActiveRecord::Base.connection.tables.to_set.should == ['firsts', 'seconds', 'schema_migrations'].to_set
       end
 
-      describe "when dump files do not exist", :shared => true do
+      shared_examples_for "when dump files do not exist" do
         it "should not require confirmation on dump" do
           $stdin.should_not_receive(:gets)
           @dumper.dump
         end
       end
 
-      describe "when dump files exist", :shared => true do
+      shared_examples_for "when dump files exist" do
         it "should require confirmation, and not proceed if not 'yes'" do
           $stdin.should_receive(:gets).and_return("\n")
           @dumper.should_not_receive(:dump_table)
@@ -185,8 +186,8 @@ module GitFriendlyDumperSpec
           end
         
           it "should create fixtures for schema_migrations" do
-            File.read("#{@path}/schema_migrations/0000/0001.yml").should == {"version" => "20070101000000"}.to_yaml
-            File.read("#{@path}/schema_migrations/0000/0002.yml").should == {"version" => "20070101010000"}.to_yaml
+            YAML.load(File.read("#{@path}/schema_migrations/0000/0001.yml")).should == {"version" => "20070101000000"}
+            YAML.load(File.read("#{@path}/schema_migrations/0000/0002.yml")).should == {"version" => "20070101010000"}
           end
         
           it "should contain create schema for firsts" do
@@ -233,22 +234,22 @@ module GitFriendlyDumperSpec
     describe "when fixtures exist" do
       before do
         migrate_up(20070101010000)
-        First.create!(:name => random_string)
-        First.create!(:name => random_string)
-        Second.create!(:name => random_string)
-        Second.create!(:name => random_string)
+        First.create!(:name => next_string)
+        First.create!(:name => next_string)
+        Second.create!(:name => next_string)
+        Second.create!(:name => next_string)
         GitFriendlyDumper.dump :include_schema => true, :force => true, :path => @path
         reset_db
       end
       
-      describe "when db data does not exist", :shared => true do
+      shared_examples_for "when db data does not exist" do
         it "should not require confirmation on load" do
           $stdin.should_not_receive(:gets)
           @dumper.load
         end
       end
 
-      describe "when db data exists", :shared => true do
+      shared_examples_for "when db data exists" do
         it "should require confirmation, and not proceed if not 'yes'" do
           $stdin.should_receive(:gets).and_return("\n")
           @dumper.should_not_receive(:load_table)
@@ -288,9 +289,6 @@ module GitFriendlyDumperSpec
           it_should_behave_like "when db data exists"
         end
       end
-      
-      
-      
       
       describe "loading when RAISE_ERROR=false" do
         let(:dumper) {GitFriendlyDumper.new(:include_schema => true, :raise_error => false, :path => @path)}

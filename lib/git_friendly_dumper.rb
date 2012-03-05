@@ -98,9 +98,9 @@ private
       puts "will be replaced with #{type == :dump ? 'records' : 'fixtures'}#{' and table schemas' if include_schema?} from #{type == :dump ? current_database_name : dump_path}."
     end
     puts "Do you wish to proceed? (type 'yes' to proceed)"
-    returning $stdin.gets.downcase.strip == 'yes' do |proceed|
-      puts "#{type.to_s.capitalize} cancelled at user's request." unless proceed
-    end
+    proceed = ($stdin.gets.downcase.strip == 'yes')
+    puts "#{type.to_s.capitalize} cancelled at user's request." unless proceed
+    proceed
   end
 
   def fixtures_tables
@@ -213,7 +213,7 @@ private
   end
   
   def load_fixture(klass, table, file)
-    fixture = Fixture.new(YAML.load(File.read(file)), klass)
+    fixture = ActiveRecord::Fixture.new(YAML.load(File.read(file)), klass)
     begin
       connection.insert_fixture fixture, table
     rescue ActiveRecord::ActiveRecordError => e
