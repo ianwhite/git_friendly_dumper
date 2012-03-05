@@ -12,21 +12,22 @@ definition is included as is the schema_migrations table.
 
   # drop-in replacement for mysqldump
   
-    rake db:dump DUMP_PATH=some/path
-    # just like mysqldump -u <user> -p<pass> <app>_development > some/path.sql
+  rake db:dump DUMP_PATH=some/path
+  # just like mysqldump -u <user> -p<pass> <app>_development > some/path.sql
 
-    rake db:load DUMP_PATH=some/path
-    # just like script/dbconsole -p < some/path.sql
+  rake db:load DUMP_PATH=some/path
+  # just like script/dbconsole -p < some/path.sql
     
   # without schema information, just the data
   
-    rake db:data:dump DUMP_PATH=some/path # dump the data without touching the structure
-    rale db:data:load DUMP_PATH=some/path # load the data without touching the structure
+  rake db:data:dump DUMP_PATH=some/path # dump the data without touching the structure
+  rake db:data:load DUMP_PATH=some/path # load the data without touching the structure
     
   # just load particular table data
+  rake db:data:load DUMP_PATH=some/path TABLES=users,things
   
-    rake db:data:load DUMP_PATH=some/path TABLES=users,things
-    
+See `lib/tasks/git_friendly_dumper_tasks.rake` and the features for more info
+
 == Notes
 
 It's probably a bad idea to check your dump into the same repo as your app.
@@ -37,4 +38,11 @@ containing many binary columns, this resulted in a massive saving in bandwidth.
 Basically, we have the db backup inside the app, but ignored by the main app, the db/dump
 has it's own git repo.
 
+== Run the specs and features
+
+Grab the last known good set of deps and run the specs and features
+
+  cp Gemfile.lock.development Gemfile.lock
+  bundle
+  rake
     

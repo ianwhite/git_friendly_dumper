@@ -1,6 +1,9 @@
-* 0.0.1
+== 0.0.1
 
-	
+  * gem release
+  * Updated for latest rspec, cucumber, and ActiveRecord (3.x)
+
+== Prior to gem release
 
 * Improvements made while using for http://www.distinctivedoors.co.uk, (Ian White & Nick Rutherford)
 

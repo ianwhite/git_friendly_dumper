@@ -23,8 +23,9 @@ end
 Bundler::GemHelper.install_tasks
 
 require 'rspec/core/rake_task'
+require "cucumber/rake/task"
 
-task :default => [:spec]
+task :default => [:spec, :features]
 
 desc "Set up tmp stuff for running specs etc"
 file "tmp/db" do
@@ -34,4 +35,9 @@ end
 desc "Run the specs"
 RSpec::Core::RakeTask.new(:spec => ['tmp/db']) do |t|
   t.pattern = "./spec/**/*_spec.rb"
+end
+
+desc "Run the features"
+Cucumber::Rake::Task.new(:features) do |task|
+  task.cucumber_opts = ["features"]
 end
