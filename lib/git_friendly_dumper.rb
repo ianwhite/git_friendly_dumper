@@ -1,6 +1,7 @@
 require 'fileutils'
 require 'active_support/all'
 require 'active_record/fixtures'
+require 'git_friendly_dumper/railtie' if defined?(Rails)
 
 begin; require 'progressbar'; rescue MissingSourceFile; end
 

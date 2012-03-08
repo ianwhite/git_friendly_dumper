@@ -14,7 +14,7 @@ Given /a Rakefile exists which has an environment task and loads git_friendly_du
     require 'rake'
     require 'active_record'
     
-    load "lib/tasks/git_friendly_dumper_tasks.rake"
+    require 'git_friendly_dumper/tasks'
     
     task :environment do
       require 'active_record'
