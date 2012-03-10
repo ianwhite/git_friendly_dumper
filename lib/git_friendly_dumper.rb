@@ -1,6 +1,7 @@
 require 'fileutils'
 require 'active_support/all'
 require 'active_record/fixtures'
+defined?(ActiveRecord::Fixture) or ActiveRecord::Fixture = Fixture # AR 3.0 compat
 require 'git_friendly_dumper/railtie' if defined?(Rails)
 
 begin; require 'progressbar'; rescue MissingSourceFile; end
