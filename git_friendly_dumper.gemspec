@@ -15,7 +15,7 @@ Gem::Specification.new do |s|
   s.test_files = Dir["spec/**/*","features/**/*"]
 
 
-  s.add_dependency "activerecord"
+  s.add_dependency "activerecord", ">= 2"
   
   s.add_development_dependency "mysql2"
   s.add_development_dependency "sqlite3"

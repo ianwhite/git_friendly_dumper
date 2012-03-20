@@ -1,3 +1,7 @@
+== 0.0.4
+
+  * Update gem dependencies
+
 == 0.0.3
 
   * ActiveRecord 3.0.x compatibility

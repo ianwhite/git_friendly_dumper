@@ -1,8 +1,8 @@
 PATH
   remote: .
   specs:
-    git_friendly_dumper (0.0.1)
-      activerecord
+    git_friendly_dumper (0.0.4)
+      activerecord (>= 2)
 
 GEM
   remote: http://rubygems.org/
